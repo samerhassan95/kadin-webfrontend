@@ -1,64 +1,15 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React from "react";
 import dynamic from "next/dynamic";
-import { ConfirmationResult } from "@firebase/auth";
-import { SignUpViews } from "@/app/(auth)/types";
 import { LoadingCard } from "@/components/loading";
 
-const SignUpForm = dynamic(() => import("./components/sign-up-form"), {
-  loading: () => <LoadingCard />,
-});
-const OtpVerify = dynamic(() => import("./components/confirmation"), {
-  loading: () => <LoadingCard />,
-});
-const AuthComplete = dynamic(() => import("./components/complete"), {
+const SimpleSignUp = dynamic(() => import("./components/simple-signup"), {
   loading: () => <LoadingCard />,
 });
 
 const SignUp = () => {
-  const [currentView, setCurrentView] = useState<SignUpViews>("SIGNUP");
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult>();
-  const [currentCredential, setCredential] = useState<string | undefined>();
-  const handleChangeView = useCallback((view: SignUpViews) => setCurrentView(view), []);
-  const [idToken, setIdToken] = useState<string | undefined>();
-  const renderView = () => {
-    switch (currentView) {
-      case "SIGNUP":
-        return (
-          <SignUpForm
-            onChangeView={handleChangeView}
-            onSuccess={({ credential, callback }) => {
-              setCredential(credential);
-              setConfirmationResult(callback);
-            }}
-          />
-        );
-      case "VERIFY":
-        return (
-          <OtpVerify
-            confirmationResult={confirmationResult}
-            credential={currentCredential}
-            onChangeView={handleChangeView}
-            onSuccess={(value) => setIdToken(value)}
-          />
-        );
-      case "COMPLETE":
-        return <AuthComplete idToken={idToken} credential={currentCredential} />;
-
-      default:
-        return (
-          <SignUpForm
-            onChangeView={handleChangeView}
-            onSuccess={({ credential, callback }) => {
-              setCredential(credential);
-              setConfirmationResult(callback);
-            }}
-          />
-        );
-    }
-  };
-  return renderView();
+  return <SimpleSignUp />;
 };
 
 export default SignUp;
