@@ -7,6 +7,9 @@ import { deleteCookie, setCookie } from "cookies-next";
 import { AsyncSelect } from "@/components/async-select";
 import useCartStore from "@/global-store/cart";
 import { useRouter } from "next/navigation";
+import { useSearchAddress } from "@/hook/use-search-address";
+import { addressService } from "@/services/address";
+import { error } from "@/components/alert";
 
 const CountrySelect = ({ onSelect }: { onSelect: () => void }) => {
   const { t } = useTranslation();
@@ -19,6 +22,79 @@ const CountrySelect = ({ onSelect }: { onSelect: () => void }) => {
   const [tempCity, setTempCity] = useState(selectedCity);
   const clearLocalCart = useCartStore((state) => state.clear);
   const [isPending, startTransition] = useTransition();
+  const [isDetecting, setIsDetecting] = useState(false);
+  const { mutate: searchAddress } = useSearchAddress();
+
+  const handleAutoDetect = () => {
+    if (!navigator.geolocation) {
+      error("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lng } = position.coords;
+        searchAddress(
+          { lat, lng },
+          {
+            onSuccess: async (res) => {
+              if (res.status !== "OK") {
+                error("Failed to detect location from Google");
+                setIsDetecting(false);
+                return;
+              }
+              const countryComp = res?.results
+                ?.flatMap((r: any) => r.address_components)
+                ?.find((c: any) => c.types.includes("country"));
+
+              const cityNameComp = res?.results
+                ?.flatMap((r: any) => r.address_components)
+                ?.find((c: any) => c.types.includes("locality") || c.types.includes("administrative_area_level_2"));
+
+              if (countryComp) {
+                const countriesRes = await addressService.getCountries({
+                  has_price: true,
+                });
+                const matchedCountry = countriesRes.data.find(
+                  (c) =>
+                    c.translation?.title.toLowerCase() === countryComp.long_name.toLowerCase() ||
+                    c.code?.toLowerCase() === countryComp.short_name.toLowerCase()
+                );
+
+                if (matchedCountry) {
+                  setTempCountry(matchedCountry);
+                  if (cityNameComp) {
+                    const citiesRes = await addressService.getCities({
+                      country_id: matchedCountry.id,
+                      has_price: true,
+                    });
+                    const matchedCity = citiesRes.data.find(
+                      (c) => c.translation?.title.toLowerCase() === cityNameComp.long_name.toLowerCase()
+                    );
+                    if (matchedCity) {
+                      setTempCity(matchedCity);
+                    }
+                  }
+                } else {
+                  error("Could not match your country with supported locations");
+                }
+              }
+              setIsDetecting(false);
+            },
+            onError: () => {
+              error("Failed to detect location address");
+              setIsDetecting(false);
+            },
+          }
+        );
+      },
+      () => {
+        error("Permission denied or location unavailable");
+        setIsDetecting(false);
+      }
+    );
+  };
 
   const handleSaveAddress = () => {
     if (tempCountry) {
@@ -65,9 +141,26 @@ const CountrySelect = ({ onSelect }: { onSelect: () => void }) => {
           value={tempCity as City}
         />
       )}
-      <Button loading={isPending} onClick={handleSaveAddress} fullWidth size="small" color="black">
-        {t("save.address")}
-      </Button>
+      <div className="flex flex-col gap-2">
+        <Button
+          loading={isDetecting}
+          onClick={handleAutoDetect}
+          fullWidth
+          size="small"
+          color="blackOutlined"
+        >
+          {t("detect.location")}
+        </Button>
+        <Button
+          loading={isPending}
+          onClick={handleSaveAddress}
+          fullWidth
+          size="small"
+          color="black"
+        >
+          {t("save.address")}
+        </Button>
+      </div>
     </div>
   );
 };

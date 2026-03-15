@@ -7,13 +7,14 @@ export const useSearchAddress = () => {
   const settings = useSettingsStore((state) => state.settings);
   return useMutation({
     mutationFn: async (location?: Partial<Coordinate>) => {
+      const googleKey = settings?.google_map_key || process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+      
       const params = {
         latlng: `${location?.lat},${location?.lng}`,
         lang: "en",
-        key: settings?.google_map_key
-          ? settings.google_map_key
-          : process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY,
+        key: googleKey,
       };
+      
       return fetch(
         buildUrlQueryParams("https://maps.googleapis.com/maps/api/geocode/json", params)
       ).then((res) => res.json());

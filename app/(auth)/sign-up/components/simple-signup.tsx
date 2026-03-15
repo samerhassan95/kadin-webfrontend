@@ -20,12 +20,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSyncServer } from "@/hook/use-sync-server";
 
 const schema = yup.object({
-  firstname: yup.string().required(),
-  lastname: yup.string().required(),
-  email: yup.string().email().required(),
+  name: yup.string().required(),
   phone: yup.string().required(),
   password: yup.string().min(6).required(),
-  password_confirmation: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required(),
 });
 
 type FormType = yup.InferType<typeof schema>;
@@ -59,12 +56,10 @@ const SimpleSignUp = () => {
   const handleSignUp = (data: FormType) => {
     setIsLoading(true);
     const body: SignUpCredentials = {
-      firstname: data.firstname,
-      lastname: data.lastname,
-      email: data.email,
+      firstname: data.name,
       phone: data.phone.replace(/[^0-9]/g, ""),
       password: data.password,
-      password_confirmation: data.password_confirmation,
+      password_confirmation: data.password,
     };
 
     signUp(body, {
@@ -91,25 +86,6 @@ const SimpleSignUp = () => {
       <form onSubmit={handleSubmit(handleSignUp)}>
         <div className="flex flex-col gap-3 mb-3 w-full">
           <Input
-            {...register("firstname")}
-            error={errors.firstname?.message}
-            fullWidth
-            label={t("firstname")}
-          />
-          <Input
-            {...register("lastname")}
-            error={errors.lastname?.message}
-            fullWidth
-            label={t("lastname")}
-          />
-          <Input
-            {...register("email")}
-            error={errors.email?.message}
-            fullWidth
-            label={t("email")}
-            type="email"
-          />
-          <Input
             {...register("phone")}
             error={errors.phone?.message}
             fullWidth
@@ -117,17 +93,16 @@ const SimpleSignUp = () => {
             type="tel"
           />
           <Input
+            {...register("name")}
+            error={errors.name?.message}
+            fullWidth
+            label={t("name")}
+          />
+          <Input
             {...register("password")}
             error={errors.password?.message}
             fullWidth
             label={t("password")}
-            type="password"
-          />
-          <Input
-            {...register("password_confirmation")}
-            error={errors.password_confirmation?.message}
-            fullWidth
-            label={t("confirm.password")}
             type="password"
           />
         </div>

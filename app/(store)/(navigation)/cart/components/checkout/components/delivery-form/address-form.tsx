@@ -16,6 +16,7 @@ import { Autocomplete, MarkerF } from "@react-google-maps/api";
 import Pin from "@/assets/img/pin.png";
 import { useSearchAddress } from "@/hook/use-search-address";
 import { CheckoutScreenProps } from "../../types";
+import { NavigatorIcon } from "@/assets/icons/navigator";
 
 const schema = yup
   .object({
@@ -143,6 +144,30 @@ const AddressForm = ({
     <form onSubmit={handleSubmit(onSubmit)} className="mt-7">
       <div className="grid grid-cols-4 gap-4">
         <div className="col-span-4">
+          <div className="flex flex-col gap-4 mb-4">
+            <Button
+              type="button"
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition((pos) => {
+                    handleMapClick({
+                      latLng: {
+                        lat: () => pos.coords.latitude,
+                        lng: () => pos.coords.longitude,
+                      },
+                    } as google.maps.MapMouseEvent);
+                  });
+                }
+              }}
+              color="blackOutlined"
+              size="small"
+              fullWidth
+              leftIcon={<NavigatorIcon size={20} />}
+            >
+              {t("detect.my.location")}
+            </Button>
+          </div>
+          
           <Map
             containerStyles={{ width: "100%", height: "300px", borderRadius: "15px" }}
             onClick={handleMapClick}
@@ -156,6 +181,7 @@ const AddressForm = ({
           >
             <MarkerF icon={Pin.src} position={currentMapCenter} />
           </Map>
+
           {map && (
             <Autocomplete
               className="flex-grow h-full shadow-none mt-4"
