@@ -61,14 +61,10 @@ export const LooksDetail = ({ id }: { id: number }) => {
     },
   });
 
-  const { data: look, isError } = useQuery(
-    ["look", id],
-    () => bannerService.get(id, { lang: language?.locale }),
-    {
-      suspense: true,
-      enabled: !!id,
-    }
-  );
+  const { data: look, isError } = useQuery(["look", id], () => bannerService.get(id), {
+    suspense: true,
+    enabled: !!id,
+  });
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ["products", look?.data.id],
@@ -76,7 +72,6 @@ export const LooksDetail = ({ id }: { id: number }) => {
       productService.getAll({
         banner_id: look?.data?.id,
         page: pageParam,
-        lang: language?.locale,
         currency_id: currency?.id,
       }),
     getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

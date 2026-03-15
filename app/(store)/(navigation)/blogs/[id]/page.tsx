@@ -9,9 +9,9 @@ import { cookies } from "next/headers";
 import dynamic from "next/dynamic";
 import ReviewList from "@/app/(store)/components/reviews/review-list";
 import { Metadata } from "next";
+import SafeHtmlRenderer from "@/components/safe-html-renderer/safe-html-renderer";
 import ReviewSummary from "../../../components/reviews/review-summary";
 import { BackButton } from "../../../components/back-button";
-import SafeHtmlRenderer from "@/components/safe-html-renderer/safe-html-renderer";
 
 const CreateReview = dynamic(() => import("../components/blog-review-create"));
 
@@ -21,8 +21,9 @@ export const generateMetadata = async ({
   params: { id: string };
 }): Promise<Metadata> => {
   const lang = cookies().get("lang")?.value;
+  const langParams = lang ? { lang } : {};
   const blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
-    buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
+    buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, langParams),
     {
       redirectOnError: true,
     }
@@ -44,8 +45,9 @@ export const generateMetadata = async ({
 
 const BlogDetailPage = async ({ params }: { params: { id: string } }) => {
   const lang = cookies().get("lang")?.value;
+  const langParams = lang ? { lang } : {};
   const blog = await fetcher<DefaultResponse<Blog<BlogFullTranslation>>>(
-    buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, { lang }),
+    buildUrlQueryParams(`v1/rest/blog-by-id/${params.id}`, langParams),
     { redirectOnError: true }
   );
   return (
@@ -71,8 +73,8 @@ const BlogDetailPage = async ({ params }: { params: { id: string } }) => {
       )}
       <div className="grid grid-cols-7 gap-7 my-7">
         <div className="xl:col-span-5 lg:col-span-4 col-span-7">
-          <SafeHtmlRenderer 
-            html={blog?.data.translation?.description || ""} 
+          <SafeHtmlRenderer
+            html={blog?.data.translation?.description || ""}
             className="text-base"
           />
           <div className="mt-10">

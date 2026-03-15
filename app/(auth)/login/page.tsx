@@ -19,6 +19,7 @@ import { useFcmToken } from "@/hook/use-fcm-token";
 import useUserStore from "@/global-store/user";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSyncServer } from "@/hook/use-sync-server";
+import SocialLogin from "../social-login";
 
 const schema = yup.object({
   username: yup.string().required(),
@@ -74,32 +75,35 @@ const Login = () => {
     });
   };
   return (
-    <div className="flex flex-col gap-6  lg:px-10 md:px-6 sm:px-4 px-2 pt-8 pb-6">
-      <h1 className="font-semibold text-[30px] mb-2 text-start">{t("login")}</h1>
-      <form onSubmit={handleSubmit(handleLogin)}>
-        <div className="flex flex-col gap-3 mb-3 w-full">
-          <Input
-            {...register("username")}
-            error={errors.username?.message}
-            fullWidth
-            label={t("email.or.phone")}
-          />
-          <Input
-            {...register("password")}
-            error={errors.password?.message}
-            fullWidth
-            label={t("password")}
-            type="password"
-          />
-        </div>
-        <Button loading={isSigningIn} disabled={Boolean(queryClient.isMutating())} fullWidth>
-          {t("sign.in")}
-        </Button>
-      </form>
-      <Link href="/forgot-password" className="font-medium text-center">
-        {t("forgot.password")}
-      </Link>
-    </div>
+    <>
+      <div className="flex flex-col gap-6  lg:px-10 md:px-6 sm:px-4 px-2 pt-8 pb-6">
+        <h1 className="font-semibold text-[30px] mb-2 text-start">{t("login")}</h1>
+        <form onSubmit={handleSubmit(handleLogin)}>
+          <div className="flex flex-col gap-3 mb-3 w-full">
+            <Input
+              {...register("username")}
+              error={errors.username?.message}
+              fullWidth
+              label={t("email.or.phone")}
+            />
+            <Input
+              {...register("password")}
+              error={errors.password?.message}
+              fullWidth
+              label={t("password")}
+              type="password"
+            />
+          </div>
+          <Button loading={isSigningIn} disabled={Boolean(queryClient.isMutating())} fullWidth>
+            {t("sign.in")}
+          </Button>
+        </form>
+        <Link href="/forgot-password" className="font-medium text-center">
+          {t("forgot.password")}
+        </Link>
+      </div>
+      <SocialLogin />
+    </>
   );
 };
 

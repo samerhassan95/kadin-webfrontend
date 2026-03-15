@@ -12,7 +12,7 @@ const RecentlyViewedProducts = () => {
   const language = useSettingsStore((state) => state.selectedLanguage);
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery(
     ["products", "history"],
-    () => productService.getViewHistory({ lang: language?.locale, currency_id: currency?.id }),
+    () => productService.getViewHistory({ currency_id: currency?.id }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
     }

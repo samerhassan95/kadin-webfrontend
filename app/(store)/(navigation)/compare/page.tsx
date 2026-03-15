@@ -29,7 +29,6 @@ const ComparePage = () => {
     () =>
       productService.compare({
         ids: compareList,
-        lang: language?.locale,
         currency_id: currency?.id,
       }),
     {

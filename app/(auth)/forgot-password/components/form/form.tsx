@@ -37,21 +37,21 @@ const Form = ({ onChangeView, onSuccess }: ForgotPasswordFormProps) => {
       error(t("sign.up.with.email.not.working"));
       return;
     }
-    
+
     // Ensure phone number is in E.164 format
     let phoneNumber = data.credential.trim();
-    if (!phoneNumber.startsWith('+')) {
+    if (!phoneNumber.startsWith("+")) {
       // If no country code, assume it's Egyptian (+20)
-      phoneNumber = '+20' + phoneNumber;
+      phoneNumber = `+20${phoneNumber}`;
     }
-    
+
     // Validate phone number format
     const phoneRegex = /^\+[1-9]\d{1,14}$/;
     if (!phoneRegex.test(phoneNumber)) {
       error(t("invalid.phone.number.format"));
       return;
     }
-    
+
     setIsSubmitting(true);
     phoneNumberSignIn(phoneNumber)
       .then((value) => {
@@ -87,7 +87,7 @@ const Form = ({ onChangeView, onSuccess }: ForgotPasswordFormProps) => {
         {t("submit")}
       </Button>
       {/* Hidden reCAPTCHA container */}
-      <div id="sign-in-button" style={{ display: 'none' }}></div>
+      <div id="sign-in-button" style={{ display: "none" }} />
     </div>
   );
 };

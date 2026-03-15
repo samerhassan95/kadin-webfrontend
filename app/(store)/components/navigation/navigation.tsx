@@ -8,7 +8,7 @@ import clsx from "clsx";
 import { ImageWithFallBack } from "@/components/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userService } from "@/services/user";
 import { ProfilePlaceholder } from "@/app/(store)/components/profile-placeholder";
@@ -18,10 +18,15 @@ import useCartStore from "@/global-store/cart";
 import dynamic from "next/dynamic";
 import useUserStore from "@/global-store/user";
 import { useTranslation } from "react-i18next";
+import { useModal } from "@/hook/use-modal";
+import { Drawer } from "@/components/drawer";
+import ErrorBoundary from "@/components/error-boundary";
 
 const CartBadge = dynamic(() =>
   import("./cart-badge").then((component) => ({ default: component.CartBadge }))
 );
+
+const ProfileSidebar = dynamic(() => import("../../(settings)/sidebar"));
 
 const links = [
   {
@@ -57,8 +62,9 @@ export const Navigation = () => {
   const cartProductsQuantity = cartList?.length || 0;
   const [mounted, setMounted] = useState(false);
   const settings = useSettingsStore((state) => state.settings);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const uiType = settings?.ui_type;
+  const [isDrawerOpen, openDrawer, closeDrawer] = useModal();
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: () => userService.profile(),
@@ -69,6 +75,35 @@ export const Navigation = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Close drawer when language changes to prevent DOM conflicts
+  // useEffect(() => {
+  //   // Only close if drawer is open and language actually changed
+  //   if (isDrawerOpen) {
+  //     // Use a small delay to allow current operations to complete
+  //     const timer = setTimeout(() => {
+  //       closeDrawer();
+  //     }, 50); // Reduced delay
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [i18n.language]); // Removed isDrawerOpen and closeDrawer from dependencies to prevent loops
+
+  // Enhanced close handler with debugging
+  const handleCloseDrawer = useCallback(() => {
+    console.log("Closing drawer...", { isDrawerOpen }); // Debug log
+    closeDrawer();
+  }, [closeDrawer, isDrawerOpen]);
+
+  // Enhanced open handler with debugging
+  const handleOpenDrawer = useCallback(() => {
+    console.log("Opening drawer...", { isDrawerOpen }); // Debug log
+    openDrawer();
+  }, [openDrawer, isDrawerOpen]);
+
+  // Debug effect to track drawer state
+  useEffect(() => {
+    console.log("Drawer state changed:", { isDrawerOpen });
+  }, [isDrawerOpen]);
 
   if (!mounted) {
     return null;
@@ -111,7 +146,7 @@ export const Navigation = () => {
           )}
         </Link>
       ))}
-      <Link href={localUser ? "/profile" : "/settings"}>
+      <button onClick={handleOpenDrawer} className="focus-ring outline-none rounded-full">
         {profile?.data?.img && !!localUser ? (
           <ImageWithFallBack
             src={profile?.data?.img}
@@ -126,7 +161,14 @@ export const Navigation = () => {
             size={40}
           />
         )}
-      </Link>
+      </button>
+      <ErrorBoundary>
+        <Drawer position="right" open={isDrawerOpen} onClose={handleCloseDrawer}>
+          <ErrorBoundary>
+            <ProfileSidebar inDrawer onClose={handleCloseDrawer} />
+          </ErrorBoundary>
+        </Drawer>
+      </ErrorBoundary>
     </nav>
   );
 };

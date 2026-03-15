@@ -1,4 +1,4 @@
-import { City, Country, DefaultResponse, DeliveryPrice, Paginate, ParamsType } from "@/types/global";
+import { DefaultResponse, DeliveryPrice, Paginate, ParamsType } from "@/types/global";
 import fetcher from "@/lib/fetcher";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { Address, AddressCreateBody } from "@/types/address";
@@ -15,8 +15,4 @@ export const addressService = {
     fetcher.put<DefaultResponse<Address>>(`v1/dashboard/user/addresses/${id}`, { body: data }),
   getDeliveryPrices: (params?: ParamsType) =>
     fetcher<Paginate<DeliveryPrice>>(buildUrlQueryParams("v1/rest/delivery-prices", params)),
-  getCountries: (params?: ParamsType) =>
-    fetcher<Paginate<Country>>(buildUrlQueryParams("v1/rest/countries", params)),
-  getCities: (params?: ParamsType) =>
-    fetcher<Paginate<City>>(buildUrlQueryParams("v1/rest/cities", params)),
 };

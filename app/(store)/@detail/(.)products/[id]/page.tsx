@@ -15,7 +15,7 @@ const ProductModal = ({ params }: { params: { id: string } }) => {
   const language = useSettingsStore((state) => state.selectedLanguage);
   const currency = useSettingsStore((state) => state.selectedCurrency);
   const { data, isLoading } = useQuery(["product", params.id], () =>
-    productService.get(params.id, { lang: language?.locale, currency_id: currency?.id })
+    productService.get(params.id, { currency_id: currency?.id })
   );
 
   if (!pathname.includes("/products/")) {

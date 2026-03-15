@@ -9,28 +9,28 @@ import NetworkError from "@/utils/network-error";
 import { error } from "@/components/alert";
 import { likeService } from "@/services/like";
 import useLikeStore from "@/global-store/like";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 export const useSyncServer = () => {
   const currency = useSettingsStore((state) => state.selectedCurrency);
   const country = useAddressStore((state) => state.country);
   const city = useAddressStore((state) => state.city);
   const localCart = useCartStore((state) => state.list);
-  const language = useSettingsStore((state) => state.selectedLanguage);
   const queryClient = useQueryClient();
   const { list, setMeny } = useLikeStore();
   const notSentList = list.filter((listItem) => !listItem.sent);
   const handleSaveMany = () => {
-    likeService
-      .getAll({
-        type: "product",
-        lang: language?.locale,
-        currency_id: currency?.id,
-        city_id: city?.id,
-        country_id: country?.id,
-      })
-      .then((res) => {
-        setMeny(res.data.map((product) => ({ productId: product.id, sent: true })));
-      });
+    const lang = getSupportedLang();
+    const params = {
+      type: "product",
+      currency_id: currency?.id,
+      city_id: city?.id,
+      country_id: country?.id,
+      ...(lang && { lang }),
+    };
+    likeService.getAll(params).then((res) => {
+      setMeny(res.data.map((product) => ({ productId: product.id, sent: true })));
+    });
   };
   const { mutate: likeMany } = useMutation(
     ["likeMany"],

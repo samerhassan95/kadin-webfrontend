@@ -43,9 +43,7 @@ export const CategoryFilters = () => {
                 />
               ) : (
                 <div className="w-[50px] h-[50px] bg-gray-200 rounded flex items-center justify-center">
-                  <span className="text-gray-500 text-xs">
-                    {category.title?.charAt(0) || "C"}
-                  </span>
+                  <span className="text-gray-500 text-xs">{category.title?.charAt(0) || "C"}</span>
                 </div>
               )}
               <span

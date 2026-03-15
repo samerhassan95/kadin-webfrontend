@@ -11,10 +11,9 @@ import { DigitalCard } from "./components/digital-card";
 
 const MyDigitalProducts = () => {
   const { t } = useTranslation();
-  const language = useSettingsStore((state) => state.selectedLanguage);
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery(
     ["digital"],
-    ({ pageParam }) => productService.myDigitalFiles({ lang: language?.locale, page: pageParam }),
+    ({ pageParam }) => productService.myDigitalFiles({ page: pageParam }),
     {
       suspense: true,
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

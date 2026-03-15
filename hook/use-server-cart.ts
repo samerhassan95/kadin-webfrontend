@@ -5,19 +5,20 @@ import { useQuery } from "@tanstack/react-query";
 import { cartService } from "@/services/cart";
 import useUserStore from "@/global-store/user";
 import { useState } from "react";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 export const useServerCart = (enabled = true, suspense = false) => {
   const [isGroup, setIsGroup] = useState(false);
   const updateLocalCart = useCartStore((state) => state.updateList);
-  const language = useSettingsStore((state) => state.selectedLanguage);
   const country = useAddressStore((state) => state.country);
   const city = useAddressStore((state) => state.city);
   const user = useUserStore((state) => state.user);
+  const lang = getSupportedLang();
   const params = {
     region_id: country?.region_id,
     country_id: country?.id,
     city_id: city?.id,
-    lang: language?.locale,
+    ...(lang && { lang }),
   };
   return useQuery({
     queryKey: ["cart", params],

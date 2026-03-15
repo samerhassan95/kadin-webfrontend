@@ -11,9 +11,7 @@ import { StoryBubble } from "./story-bubble";
 
 const Stories = () => {
   const language = useSettingsStore((state) => state.selectedLanguage);
-  const { data } = useQuery(["stories", language?.locale], () =>
-    storyService.getAll({ lang: language?.locale })
-  );
+  const { data } = useQuery(["stories"], () => storyService.getAll());
   if (data && data.length === 0) {
     return null;
   }

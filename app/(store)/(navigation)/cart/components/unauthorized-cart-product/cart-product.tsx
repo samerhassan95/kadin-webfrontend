@@ -13,8 +13,8 @@ import { useDebounce } from "@/hook/use-debounce";
 import useCartStore from "@/global-store/cart";
 import { error } from "@/components/alert";
 import dynamic from "next/dynamic";
-import CartProductCounter from "./cart-product-counter";
 import { ImageWithFallBack } from "@/components/image";
+import CartProductCounter from "./cart-product-counter";
 
 const ColorName = dynamic(() => import("@/components/color-name"));
 
@@ -73,7 +73,7 @@ const CartProduct = ({
             </div>
           )}
           <Link href={`/products/${stock.product.uuid}?stock_id=${stock.id}`} scroll={false}>
-            {(data.image || galleries?.[0]?.path || stock.product.img) ? (
+            {data.image || galleries?.[0]?.path || stock.product.img ? (
               <ImageWithFallBack
                 src={data.image || galleries?.[0]?.path || stock.product.img}
                 alt={stock.product.translation?.title || "product"}

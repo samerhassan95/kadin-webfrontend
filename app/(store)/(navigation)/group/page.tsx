@@ -21,6 +21,7 @@ import fetcher from "@/lib/fetcher";
 import useSettingsStore from "@/global-store/settings";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { City, Country, DefaultResponse } from "@/types/global";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 const schema = yup.object({
   name: yup.string().required(),
@@ -49,12 +50,13 @@ const GroupOrderJoinPage = () => {
 
   const { data: countryDetail } = useQuery(
     ["country", searchParams.get("country_id")],
-    () =>
-      fetcher<DefaultResponse<Country>>(
-        buildUrlQueryParams(`v1/rest/countries/${searchParams.get("country_id")}`, {
-          lang: language?.locale,
-        })
-      ),
+    () => {
+      const lang = getSupportedLang();
+      const params = lang ? { lang } : {};
+      return fetcher<DefaultResponse<Country>>(
+        buildUrlQueryParams(`v1/rest/countries/${searchParams.get("country_id")}`, params)
+      );
+    },
     {
       enabled: searchParams.has("country_id"),
     }
@@ -62,12 +64,13 @@ const GroupOrderJoinPage = () => {
 
   const { data: cityDetail } = useQuery(
     ["city", searchParams.get("city_id")],
-    () =>
-      fetcher<DefaultResponse<City>>(
-        buildUrlQueryParams(`v1/rest/cities/${searchParams.get("city_id")}`, {
-          lang: language?.locale,
-        })
-      ),
+    () => {
+      const lang = getSupportedLang();
+      const params = lang ? { lang } : {};
+      return fetcher<DefaultResponse<City>>(
+        buildUrlQueryParams(`v1/rest/cities/${searchParams.get("city_id")}`, params)
+      );
+    },
     {
       enabled: searchParams.has("city_id"),
     }

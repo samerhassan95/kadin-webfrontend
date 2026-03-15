@@ -26,8 +26,7 @@ export const CategoryFilter = ({ extra, container }: CategoryFilterProps) => {
   const pathname = usePathname();
   const { data, isLoading } = useInfiniteQuery(
     ["categories", "main"],
-    ({ pageParam }) =>
-      categoryService.getAll({ type: "main", page: pageParam, lang: language?.locale }),
+    ({ pageParam }) => categoryService.getAll({ type: "main", page: pageParam }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
     }

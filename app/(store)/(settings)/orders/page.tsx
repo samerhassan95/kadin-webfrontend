@@ -7,12 +7,10 @@ import { extractDataFromPagination } from "@/utils/extract-data";
 import { InfiniteLoader } from "@/components/infinite-loader";
 import { Empty } from "@/components/empty";
 import { useTranslation } from "react-i18next";
-import useSettingsStore from "@/global-store/settings";
 import { OrderCard } from "./components/order-card";
 
 const Orders = () => {
   const { t } = useTranslation();
-  const language = useSettingsStore((state) => state.selectedLanguage);
   const {
     data: activeOrders,
     hasNextPage: activeOrderHasNextPage,
@@ -20,7 +18,7 @@ const Orders = () => {
     fetchNextPage: fetchNextActiveOrders,
   } = useInfiniteQuery(
     ["activeOrders"],
-    ({ pageParam }) => orderService.getAll({ page: pageParam, parent: 1, lang: language?.locale }),
+    ({ pageParam }) => orderService.getAll({ page: pageParam, parent: 1 }),
     {
       suspense: true,
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

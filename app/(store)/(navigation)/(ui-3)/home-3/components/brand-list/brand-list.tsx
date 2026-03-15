@@ -41,7 +41,12 @@ const BrandList = () => {
             <Link href={`/products?brands=${brand.id}`}>
               <div className="border relative border-gray-border dark:border-gray-inputBorder rounded-xl px-2 py-4 flex justify-center items-center md:aspect-[104/74] aspect-[74/40]">
                 {brand.img ? (
-                  <Image src={brand.img} alt="brand" fill className="object-contain h-full w-auto" />
+                  <Image
+                    src={brand.img}
+                    alt="brand"
+                    fill
+                    className="object-contain h-full w-auto"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-500">
                     {brand.title?.charAt(0) || "B"}

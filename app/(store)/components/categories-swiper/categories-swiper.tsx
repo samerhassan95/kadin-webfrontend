@@ -15,10 +15,9 @@ export const CategoriesSwiper = ({ categories }: { categories?: Paginate<Categor
   const language = useSettingsStore((state) => state.selectedLanguage);
   const searchParams = useSearchParams();
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery(
-    ["categories", "sub_main", searchParams.get("category_id"), language?.locale],
+    ["categories", "sub_main", searchParams.get("category_id")],
     ({ pageParam }) =>
       categoryService.getAll({
-        lang: language?.locale,
         type: "main",
         page: pageParam,
         parent_id: searchParams.get("category_id"),

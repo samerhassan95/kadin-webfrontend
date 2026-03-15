@@ -12,22 +12,15 @@ interface PrivacyContentProps {
 
 export const PrivacyContent = ({ data }: PrivacyContentProps) => {
   const language = useSettingsStore((state) => state.selectedLanguage);
-  
-  const { data: privacy } = useQuery(
-    ["privacy", language?.locale],
-    () => infoService.privacy({ lang: language?.locale }),
-    {
-      initialData: data,
-    }
-  );
+
+  const { data: privacy } = useQuery(["privacy"], () => infoService.privacy(), {
+    initialData: data,
+  });
 
   return (
     <div className="xl:container px-2 md:px-4">
       <h1 className="md:text-[26px] text-xl font-semibold">{privacy?.data?.translation?.title}</h1>
-      <SafeHtmlRenderer 
-        html={privacy?.data?.translation?.description || ""} 
-        className="mt-4"
-      />
+      <SafeHtmlRenderer html={privacy?.data?.translation?.description || ""} className="mt-4" />
     </div>
   );
 };

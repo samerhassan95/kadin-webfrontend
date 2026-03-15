@@ -41,7 +41,7 @@ const UnAuthorizedCart = () => {
     isError,
     isLoading,
   } = useQuery({
-    queryKey: ["calculate", currency?.id, cartList, country?.id, city?.id, language?.locale],
+    queryKey: ["calculate", currency?.id, cartList, country?.id, city?.id],
     queryFn: () => {
       const body: ParamsType = {
         currency_id: currency?.id,
@@ -52,7 +52,6 @@ const UnAuthorizedCart = () => {
           quantity: cartProduct.quantity,
           image: cartProduct.image,
         })),
-        lang: language?.locale,
       };
       return cartService.restCalculate(body);
     },

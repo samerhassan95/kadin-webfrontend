@@ -16,10 +16,7 @@ const RecentlyViewedProducts = () => {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery(
     ["products", "alsoBought", productId, language?.locale, currency?.id],
     ({ pageParam }) =>
-      productService.alsoBought(
-        { lang: language?.locale, currency_id: currency?.id, page: pageParam },
-        productId
-      ),
+      productService.alsoBought({ currency_id: currency?.id, page: pageParam }, productId),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
     }

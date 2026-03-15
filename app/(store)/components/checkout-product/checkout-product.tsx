@@ -31,7 +31,7 @@ export const CheckoutProduct = ({
               data.replace_stock?.product && "border-2 border-red rounded-2xl p-1"
             )}
           >
-            {(data.galleries?.[0]?.path || data.replace_stock?.product?.img) ? (
+            {data.galleries?.[0]?.path || data.replace_stock?.product?.img ? (
               <ImageWithFallBack
                 src={data.galleries?.[0]?.path || data.replace_stock?.product?.img}
                 alt={data.replace_stock?.product?.translation?.title || "product"}

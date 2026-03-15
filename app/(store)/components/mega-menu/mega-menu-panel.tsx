@@ -12,8 +12,7 @@ const MegaMenuPanel = () => {
   const language = useSettingsStore((state) => state.selectedLanguage);
   const { data, hasNextPage, isFetching, fetchNextPage, isLoading } = useInfiniteQuery({
     queryKey: ["categories", "main"],
-    queryFn: ({ pageParam }) =>
-      categoryService.getAll({ page: pageParam, type: "main", lang: language?.locale }),
+    queryFn: ({ pageParam }) => categoryService.getAll({ page: pageParam, type: "main" }),
     getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
   });
   const categories = extractDataFromPagination(data?.pages);

@@ -46,9 +46,7 @@ export const StoryBubble = ({
             />
           ) : (
             <div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-gray-500 text-xs">
-                {stories?.[0]?.title?.charAt(0) || "S"}
-              </span>
+              <span className="text-gray-500 text-xs">{stories?.[0]?.title?.charAt(0) || "S"}</span>
             </div>
           )}
         </div>

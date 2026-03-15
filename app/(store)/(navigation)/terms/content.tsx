@@ -11,14 +11,10 @@ interface TermsContentProps {
 
 export const TermsContent = ({ data }: TermsContentProps) => {
   const language = useSettingsStore((state) => state.selectedLanguage);
-  
-  const { data: terms } = useQuery(
-    ["terms", language?.locale],
-    () => infoService.terms({ lang: language?.locale }),
-    {
-      initialData: data,
-    }
-  );
+
+  const { data: terms } = useQuery(["terms"], () => infoService.terms(), {
+    initialData: data,
+  });
 
   return (
     <div className="xl:container px-2 md:px-4">

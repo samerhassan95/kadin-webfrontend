@@ -18,14 +18,10 @@ const Orders = () => {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useInfiniteQuery(
-    ["refunds"],
-    ({ pageParam }) => refundService.getAll({ page: pageParam, lang: language?.locale }),
-    {
-      suspense: true,
-      getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
-    }
-  );
+  } = useInfiniteQuery(["refunds"], ({ pageParam }) => refundService.getAll({ page: pageParam }), {
+    suspense: true,
+    getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
+  });
 
   const refundList = extractDataFromPagination(refunds?.pages);
   return (

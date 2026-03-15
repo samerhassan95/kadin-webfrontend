@@ -54,7 +54,6 @@ const CheckoutVerify = ({
         delivery_type: state.deliveryType,
         country_id: country?.id,
         city_id: city?.id,
-        lang: language?.locale,
       };
       if (!everyItemDigital && state.deliveryType === "delivery") {
         body.delivery_price_id = state.deliveryPrice?.id;

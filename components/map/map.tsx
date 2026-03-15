@@ -42,16 +42,7 @@ export const Map: React.FC<MapProps> = ({
   const getUserCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        const newPos = { lat: position.coords.latitude, lng: position.coords.longitude };
-        setCurrentCenter(newPos);
-        if (onClick) {
-          onClick({
-            latLng: {
-              lat: () => newPos.lat,
-              lng: () => newPos.lng,
-            },
-          } as google.maps.MapMouseEvent);
-        }
+        setCurrentCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
       });
     }
   };

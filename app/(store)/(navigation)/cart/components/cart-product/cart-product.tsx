@@ -12,8 +12,8 @@ import { Modal } from "@/components/modal";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 import GiftLineIcon from "remixicon-react/GiftLineIcon";
-import CartProductCounter from "./cart-product-counter";
 import { ImageWithFallBack } from "@/components/image";
+import CartProductCounter from "./cart-product-counter";
 
 const CartProductNote = dynamic(() => import("./cart-product-note"));
 const ColorName = dynamic(() => import("@/components/color-name"));
@@ -60,7 +60,7 @@ const CartProduct = ({
               </div>
             )}
             <Link href={`/products/${stock.product.uuid}?stock_id=${stock.id}`} scroll={false}>
-              {(galleries?.[0]?.path || stock.product.img) ? (
+              {galleries?.[0]?.path || stock.product.img ? (
                 <ImageWithFallBack
                   src={galleries?.[0]?.path || stock.product.img}
                   alt={stock.product.translation?.title || "product"}

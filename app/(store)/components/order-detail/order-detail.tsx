@@ -13,7 +13,7 @@ const OrderDetail = ({ id, onRepeat }: { id?: number | null; onRepeat?: () => vo
   const { t } = useTranslation();
   const [isDownLoading, setIsDownLoading] = useState(false);
   const language = useSettingsStore((state) => state.selectedLanguage);
-  const { data } = useQuery(["order", id], () => orderService.get(id, { lang: language?.locale }), {
+  const { data } = useQuery(["order", id], () => orderService.get(id), {
     suspense: true,
     enabled: !!id,
     refetchOnWindowFocus: true,

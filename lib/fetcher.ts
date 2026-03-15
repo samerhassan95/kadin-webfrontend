@@ -11,7 +11,7 @@ interface CustomRequestInit extends RequestInit {
 
 const fetcher = async <T>(input: string | string[], init?: CustomRequestInit): Promise<T> => {
   const url = `${BASE_URL}${Array.isArray(input) ? input[0] : input}`;
-  
+
   try {
     const res = await fetch(url, {
       ...init,
@@ -20,7 +20,7 @@ const fetcher = async <T>(input: string | string[], init?: CustomRequestInit): P
         ...init?.headers,
       },
     });
-    
+
     if (!res.ok) {
       const errorResponse = (await res.json()) as ErrorResponse;
       // eslint-disable-next-line
@@ -45,11 +45,11 @@ const fetcher = async <T>(input: string | string[], init?: CustomRequestInit): P
     if (error instanceof NetworkError) {
       throw error;
     }
-    
+
     // For fetch failures (network issues, server down, etc.)
-    console.error('Fetch failed:', error);
+    console.error("Fetch failed:", error);
     throw new NetworkError(
-      'Network error: Unable to connect to server. Please check your internet connection and try again.',
+      "Network error: Unable to connect to server. Please check your internet connection and try again.",
       0,
       {}
     );

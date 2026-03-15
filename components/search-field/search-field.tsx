@@ -50,7 +50,6 @@ export const SearchField = ({
     queryFn: () =>
       productService.search({
         search: debouncedSearchQuery,
-        lang: language?.locale,
         currency_id: currency?.id,
         country_id: country?.id,
         city_id: city?.id,

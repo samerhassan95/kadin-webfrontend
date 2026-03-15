@@ -18,7 +18,6 @@ const CategoryList = () => {
         type: "sub_main",
         page: pageParam,
         parent_id: searchParams.get("category_id"),
-        lang: language?.locale,
       }),
     suspense: true,
     getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

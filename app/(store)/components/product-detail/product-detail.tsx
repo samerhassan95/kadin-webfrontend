@@ -83,7 +83,6 @@ export const ProductDetail = ({ initialData, fullPage }: ProductDetailProps) => 
     ["product", initialData?.data.id, language?.locale, currency?.id],
     () =>
       productService.get(initialData?.data.uuid, {
-        lang: language?.locale,
         currency_id: currency?.id,
       }),
     {

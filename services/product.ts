@@ -4,27 +4,68 @@ import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { DigitalProduct, Filter, Product, ProductFull, SearchProduct } from "@/types/product";
 import { BASE_URL } from "@/config/global";
 import { getCookie } from "cookies-next";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 export const productService = {
-  getAll: (params?: ParamsType) =>
-    fetcher<Paginate<Product>>(buildUrlQueryParams("v1/rest/products/paginate", params)),
-  getByIds: (params?: ParamsType) =>
-    fetcher<Paginate<Product>>(buildUrlQueryParams("v1/rest/products/ids", params)),
-  filters: (params?: ParamsType) => fetcher<Filter>(buildUrlQueryParams("v1/rest/filter", params)),
-  search: (params?: ParamsType) =>
-    fetcher<Paginate<SearchProduct>>(buildUrlQueryParams("v1/rest/products/search", params)),
-  get: (id?: string, params?: ParamsType) =>
-    fetcher<DefaultResponse<ProductFull>>(buildUrlQueryParams(`v1/rest/products/${id}`, params)),
-  getViewHistory: (params?: ParamsType) =>
-    fetcher<Paginate<Product>>(buildUrlQueryParams("v1/rest/product-histories/paginate", params)),
-  alsoBought: (params?: ParamsType, id?: number | string) =>
-    fetcher<Paginate<Product>>(buildUrlQueryParams(`v1/rest/products/${id}/also-bought`, params)),
-  compare: (params?: ParamsType) =>
-    fetcher<DefaultResponse<ProductFull[][]>>(buildUrlQueryParams("v1/rest/compare", params)),
-  myDigitalFiles: (params?: ParamsType) =>
-    fetcher<Paginate<DigitalProduct>>(
-      buildUrlQueryParams("v1/dashboard/user/my-digital-files", params)
-    ),
+  getAll: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<Product>>(
+      buildUrlQueryParams("v1/rest/products/paginate", finalParams)
+    );
+  },
+  getByIds: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<Product>>(buildUrlQueryParams("v1/rest/products/ids", finalParams));
+  },
+  filters: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Filter>(buildUrlQueryParams("v1/rest/filter", finalParams));
+  },
+  search: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<SearchProduct>>(
+      buildUrlQueryParams("v1/rest/products/search", finalParams)
+    );
+  },
+  get: (id?: string, params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<DefaultResponse<ProductFull>>(
+      buildUrlQueryParams(`v1/rest/products/${id}`, finalParams)
+    );
+  },
+  getViewHistory: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<Product>>(
+      buildUrlQueryParams("v1/rest/product-histories/paginate", finalParams)
+    );
+  },
+  alsoBought: (params?: ParamsType, id?: number | string) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<Product>>(
+      buildUrlQueryParams(`v1/rest/products/${id}/also-bought`, finalParams)
+    );
+  },
+  compare: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<DefaultResponse<ProductFull[][]>>(
+      buildUrlQueryParams("v1/rest/compare", finalParams)
+    );
+  },
+  myDigitalFiles: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<DigitalProduct>>(
+      buildUrlQueryParams("v1/dashboard/user/my-digital-files", finalParams)
+    );
+  },
   downloadFile: (id: number) =>
     fetch(`${BASE_URL}v1/dashboard/user/digital-files/${id}`, {
       headers: {

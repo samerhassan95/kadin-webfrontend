@@ -20,13 +20,9 @@ export const Banners = ({ banners }: { banners?: Paginate<Banner> }) => {
   const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
   const { t } = useTranslation();
   const language = useSettingsStore((state) => state.selectedLanguage);
-  const { data: actualBanners } = useQuery(
-    ["banners", language?.locale],
-    () => bannerService.getAll({ lang: language?.locale }),
-    {
-      initialData: banners,
-    }
-  );
+  const { data: actualBanners } = useQuery(["banners"], () => bannerService.getAll(), {
+    initialData: banners,
+  });
   return (
     <div className="relative md:col-span-2 min-w-0">
       <Swiper

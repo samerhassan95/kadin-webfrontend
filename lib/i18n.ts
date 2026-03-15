@@ -2,16 +2,57 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import HttpBackend from "i18next-http-backend";
 import I18NextChainedBackend from "i18next-chained-backend";
+import LocalStorageBackend from "i18next-localstorage-backend";
 import { DefaultResponse } from "@/types/global";
 import { getCookie } from "cookies-next";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 import fetcher from "./fetcher";
 
-const loadResources = async (locale: string) =>
-  fetcher<DefaultResponse<Record<string, string>>>(`v1/rest/translations/paginate?lang=${locale}`, {
-    headers: { "Access-Control-Allow-Origin": "*" },
-  }).catch((error) => {
+const getStoredLanguage = () => {
+  if (typeof window !== "undefined") {
+    // First check localStorage (our primary storage)
+    const storedLang = localStorage.getItem("lang");
+    const i18nextLng = localStorage.getItem("i18nextLng");
+
+    console.log(`getStoredLanguage: lang=${storedLang}, i18nextLng=${i18nextLng}`);
+
+    // Priority: i18nextLng > lang > cookie
+    // This ensures i18next's own storage takes precedence
+    const finalLang = i18nextLng || storedLang;
+
+    // If we have a language, ensure both keys are synced
+    if (finalLang) {
+      if (storedLang !== finalLang) {
+        localStorage.setItem("lang", finalLang);
+        console.log(`getStoredLanguage: Synced lang to ${finalLang}`);
+      }
+      if (i18nextLng !== finalLang) {
+        localStorage.setItem("i18nextLng", finalLang);
+        console.log(`getStoredLanguage: Synced i18nextLng to ${finalLang}`);
+      }
+      return finalLang;
+    }
+  }
+
+  // Only use cookie as last resort (and it might be undefined for Arabic)
+  const cookieLang = getCookie("lang")?.toString();
+  console.log(`getStoredLanguage: fallback to cookie=${cookieLang || "en"}`);
+  return cookieLang || "en";
+};
+
+const loadResources = async (locale: string) => {
+  // Always use supported backend language (only 'en' currently)
+  // Arabic translations are handled client-side only
+  const backendLang = getSupportedLang() || "en";
+  return fetcher<DefaultResponse<Record<string, string>>>(
+    `v1/rest/translations/paginate?lang=${backendLang}`,
+    {
+      headers: { "Access-Control-Allow-Origin": "*" },
+    }
+  ).catch((error) => {
     console.log(error);
   });
+};
 
 i18n
   .use(I18NextChainedBackend)
@@ -19,8 +60,15 @@ i18n
   .init({
     debug: false,
     ns: "translation",
-    fallbackLng: getCookie("lang")?.toString() || "en",
+    lng: getStoredLanguage(), // Use stored language instead of hardcoded "en"
+    fallbackLng: "en",
     defaultNS: "translation",
+    // Configure i18next to use localStorage but with our custom key management
+    detection: {
+      order: ["localStorage"],
+      lookupLocalStorage: "i18nextLng",
+      caches: ["localStorage"],
+    },
     resources: {
       en: {
         translation: {
@@ -61,7 +109,8 @@ i18n
           "search.products": "Search products",
           "compare.list.is.empty": "Compare list is empty",
           "clear.all": "Clear all",
-          "are.you.sure.want.to.clear.all.items.in.the.cart": "Are you sure you want to clear all items in the cart?",
+          "are.you.sure.want.to.clear.all.items.in.the.cart":
+            "Are you sure you want to clear all items in the cart?",
           "go.to.checkout": "Go to checkout",
           "there.is.no.products": "There are no products",
           "item.added.to.compare.list": "Item added to compare list",
@@ -76,19 +125,12 @@ i18n
           "price.ranges": "Price ranges",
           "you.already.have.an.account": "You already have an account",
           "sign.up": "Sign up",
-          "submit": "Submit",
+          submit: "Submit",
           "sms.not.sent": "SMS not sent",
           "sign.up.with.email.not.working": "Sign up with email is not working",
           "invalid.phone.number.format": "Invalid phone number format",
           "next.step": "Next step",
-          "payment": "Payment",
-          "name": "Name",
-          "phone": "Phone number",
-          "password": "Password",
-          "detect.location": "Detect My Location",
-          "detect.my.location": "Detect My Precise Address",
-          "auto.location.active": "Auto Location Detection Active",
-          "map.optional.description": "You can also write your address manually below",
+          payment: "Payment",
           "first.name": "First name",
           "last.name": "Last name",
           "zip.code": "Zip code",
@@ -100,9 +142,9 @@ i18n
           "delivery.date": "Delivery date",
           "last.step": "Last step",
           "confirm.and.pay": "Confirm and pay",
-          "firstname": "First name",
+          firstname: "First name",
           "email.address": "Email address",
-          "lastname": "Last name",
+          lastname: "Last name",
           "change.password": "Change password",
           "order.history": "Order history",
           "order.refunds": "Order refunds",
@@ -144,6 +186,34 @@ i18n
           "create.new.address": "Create new address",
           "edit.address": "Edit address",
           "comment.for.product": "Comment for product",
+          theme: "Theme",
+          language: "Language",
+          english: "English",
+          arabic: "Arabic",
+          wallet: "Wallet",
+          information: "Information",
+          setting: "Setting",
+          logout: "Logout",
+          compare: "Compare",
+          blog: "Blog",
+          parcels: "Parcels",
+          hotline: "Hotline",
+          help: "Help",
+          all: "All",
+          sale: "Sale",
+          "best.offer": "Best Offer",
+          "popular.and.best.products": "Popular and best products",
+          "free.shipping": "Free Shipping",
+          "free.shipping.and.free.return": "Free Shipping & Free Return",
+          notifications: "Notifications",
+          "mark.as.read": "Mark as read",
+          news: "News",
+          orders: "Orders",
+          hello: "Hello",
+          products: "Products",
+          coupon: "Coupon",
+          total: "Total",
+          "shop.title": "Shop Title",
         },
       },
       ar: {
@@ -185,7 +255,8 @@ i18n
           "search.products": "ابحث عن المنتجات",
           "compare.list.is.empty": "قائمة المقارنة فارغة",
           "clear.all": "مسح الكل",
-          "are.you.sure.want.to.clear.all.items.in.the.cart": "هل أنت متأكد من أنك تريد مسح جميع العناصر في السلة؟",
+          "are.you.sure.want.to.clear.all.items.in.the.cart":
+            "هل أنت متأكد من أنك تريد مسح جميع العناصر في السلة؟",
           "go.to.checkout": "الذهاب للدفع",
           "there.is.no.products": "لا توجد منتجات",
           "item.added.to.compare.list": "تمت إضافة العنصر إلى قائمة المقارنة",
@@ -200,19 +271,12 @@ i18n
           "price.ranges": "نطاقات الأسعار",
           "you.already.have.an.account": "لديك حساب بالفعل",
           "sign.up": "إنشاء حساب",
-          "submit": "إرسال",
+          submit: "إرسال",
           "sms.not.sent": "لم يتم إرسال الرسالة النصية",
           "sign.up.with.email.not.working": "التسجيل بالبريد الإلكتروني لا يعمل",
           "invalid.phone.number.format": "تنسيق رقم الهاتف غير صحيح",
           "next.step": "الخطوة التالية",
-          "payment": "الدفع",
-          "name": "الاسم",
-          "phone": "رقم الهاتف",
-          "password": "كلمة المرور",
-          "detect.location": "تحديد موقعي تلقائياً",
-          "detect.my.location": "تحديد عنواني الدقيق الآن",
-          "auto.location.active": "نظام التحديد التلقائي نشط",
-          "map.optional.description": "يمكنك أيضاً كتابة العنوان يدوياً بالأسفل",
+          payment: "الدفع",
           "first.name": "الاسم الأول",
           "last.name": "اسم العائلة",
           "zip.code": "الرمز البريدي",
@@ -224,9 +288,9 @@ i18n
           "delivery.date": "تاريخ التوصيل",
           "last.step": "الخطوة الأخيرة",
           "confirm.and.pay": "تأكيد والدفع",
-          "firstname": "الاسم الأول",
+          firstname: "الاسم الأول",
           "email.address": "عنوان البريد الإلكتروني",
-          "lastname": "اسم العائلة",
+          lastname: "اسم العائلة",
           "change.password": "تغيير كلمة المرور",
           "order.history": "تاريخ الطلبات",
           "order.refunds": "استرداد الطلبات",
@@ -268,6 +332,34 @@ i18n
           "create.new.address": "إنشاء عنوان جديد",
           "edit.address": "تعديل العنوان",
           "comment.for.product": "تعليق على المنتج",
+          theme: "المظهر",
+          language: "اللغة",
+          english: "الإنجليزية",
+          arabic: "العربية",
+          wallet: "المحفظة",
+          information: "المعلومات",
+          setting: "الإعدادات",
+          logout: "تسجيل الخروج",
+          compare: "المقارنة",
+          blog: "المدونة",
+          parcels: "الطرود",
+          hotline: "الخط الساخن",
+          help: "المساعدة",
+          all: "الكل",
+          sale: "التخفيضات",
+          "best.offer": "أفضل عرض",
+          "popular.and.best.products": "المنتجات الشائعة والأفضل",
+          "free.shipping": "شحن مجاني",
+          "free.shipping.and.free.return": "شحن مجاني وإرجاع مجاني",
+          notifications: "الإشعارات",
+          "mark.as.read": "تحديد كمقروء",
+          news: "الأخبار",
+          orders: "الطلبات",
+          hello: "مرحباً",
+          products: "المنتجات",
+          coupon: "الكوبون",
+          total: "المجموع",
+          "shop.title": "عنوان المتجر",
         },
       },
     },
@@ -275,8 +367,11 @@ i18n
       useSuspense: true,
     },
     backend: {
-      backends: [HttpBackend],
+      backends: [LocalStorageBackend, HttpBackend],
       backendOptions: [
+        {
+          expirationTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+        },
         {
           loadPath: "{{lng}}|{{ns}}",
           request: (options: any, url: any, payload: any, callback: any) => {
@@ -299,5 +394,60 @@ i18n
       ],
     },
   });
+
+// Initialize language from localStorage after DOM is ready
+if (typeof window !== "undefined") {
+  // Listen for i18next language changes and sync localStorage
+  i18n.on("languageChanged", (lng) => {
+    console.log(`i18n languageChanged event: ${lng}`);
+
+    // Sync both localStorage keys whenever i18n language changes
+    try {
+      localStorage.setItem("lang", lng);
+      localStorage.setItem("i18nextLng", lng);
+
+      // Also update DOM attributes
+      document.documentElement.setAttribute("lang", lng);
+      const direction = lng === "ar" ? "rtl" : "ltr";
+      document.documentElement.setAttribute("dir", direction);
+      localStorage.setItem("dir", direction);
+    } catch (error) {
+      console.warn("Failed to sync language in localStorage:", error);
+    }
+  });
+
+  // Wait for DOM to be ready and ensure proper initialization
+  const initializeStoredLanguage = () => {
+    const storedLanguage = getStoredLanguage();
+    console.log(`i18n initialization: stored=${storedLanguage}, current=${i18n.language}`);
+
+    // Always ensure i18n uses the stored language, even if it's the same
+    // This helps with cases where i18n might not have initialized properly
+    if (storedLanguage) {
+      console.log(`i18n: Setting language to ${storedLanguage}`);
+      i18n.changeLanguage(storedLanguage);
+    }
+  };
+
+  // Initialize immediately if DOM is already ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeStoredLanguage);
+  } else {
+    // Use setTimeout to ensure this runs after i18n is fully initialized
+    setTimeout(initializeStoredLanguage, 0);
+  }
+
+  // Also listen for localStorage changes from other tabs
+  window.addEventListener("storage", (e) => {
+    if (
+      (e.key === "lang" || e.key === "i18nextLng") &&
+      e.newValue &&
+      e.newValue !== i18n.language
+    ) {
+      console.log(`i18n: Storage change detected, changing language to ${e.newValue}`);
+      i18n.changeLanguage(e.newValue);
+    }
+  });
+}
 
 export default i18n;

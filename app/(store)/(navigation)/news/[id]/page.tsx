@@ -6,7 +6,8 @@ import SafeHtmlRenderer from "@/components/safe-html-renderer/safe-html-renderer
 
 const NewsDetail = async ({ params }: { params: { id: string } }) => {
   const lang = cookies().get("lang")?.value;
-  const data = await blogService.get(params.id, { lang });
+  const langParams = lang ? { lang } : {};
+  const data = await blogService.get(params.id, langParams);
   const newsContent = data?.data;
   return (
     <div className="xl:container px-2 md:px-4">
@@ -25,8 +26,8 @@ const NewsDetail = async ({ params }: { params: { id: string } }) => {
             />
           </div>
         )}
-        <SafeHtmlRenderer 
-          html={newsContent?.translation?.description || ""} 
+        <SafeHtmlRenderer
+          html={newsContent?.translation?.description || ""}
           className="text-base leading-7"
         />
       </div>

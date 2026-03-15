@@ -23,7 +23,7 @@ export const HelpContent = ({ data }: HelpContentProps) => {
     isFetchingNextPage,
   } = useInfiniteQuery(
     ["faq", language?.locale],
-    ({ pageParam }) => infoService.faq({ lang: language?.locale, page: pageParam }),
+    ({ pageParam }) => infoService.faq({ page: pageParam }),
     {
       getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
       initialData: { pages: [data], pageParams: [1] },

@@ -9,6 +9,7 @@ import {
   UserDetail,
 } from "@/types/user";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 export const userService = {
   profile: () => fetcher<DefaultResponse<UserDetail>>("v1/dashboard/user/profile/show"),
@@ -20,17 +21,24 @@ export const userService = {
     fetcher.post("v1/dashboard/user/profile/password/update", { body: data }),
   updateNotificationSettings: (body: NotificationUpdateBody) =>
     fetcher.post(`v1/dashboard/user/update/notifications`, { body }),
-  getWalletHistory: (params?: ParamsType) =>
-    fetcher<Paginate<Transaction>>(
-      buildUrlQueryParams("v1/dashboard/user/wallet/histories", params)
-    ),
-  userList: (params?: ParamsType) =>
-    fetcher<Paginate<SearchedUser>>(
-      buildUrlQueryParams("v1/dashboard/user/search-sending", params)
-    ),
+  getWalletHistory: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<Transaction>>(
+      buildUrlQueryParams("v1/dashboard/user/wallet/histories", finalParams)
+    );
+  },
+  userList: (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<Paginate<SearchedUser>>(
+      buildUrlQueryParams("v1/dashboard/user/search-sending", finalParams)
+    );
+  },
   sendMoney: (data: { price: number; uuid: string }) =>
     fetcher.post("v1/dashboard/user/wallet/send", { body: data }),
   updateLanguage: (lang: string) =>
+    // Send the actual language selected by the user to the backend
     fetcher.put(buildUrlQueryParams("v1/dashboard/user/profile/lang/update", { lang })),
   updateCurrency: (currencyId: number) =>
     fetcher.put(

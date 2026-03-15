@@ -35,7 +35,6 @@ const Liked = () => {
     () =>
       productService.getByIds({
         products: list.map((listItem) => listItem.productId),
-        lang: language?.locale,
         currency_id: currency?.id,
       }),
     {
@@ -56,7 +55,6 @@ const Liked = () => {
     ({ pageParam }) =>
       likeService.getAll({
         type: "product",
-        lang: language?.locale,
         currency_id: currency?.id,
         city_id: city?.id,
         country_id: country?.id,

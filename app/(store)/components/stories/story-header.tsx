@@ -30,9 +30,7 @@ export const StoryHeader = ({ story, onClose }: StoryHeaderProps) => (
                 />
               ) : (
                 <div className="aspect-square rounded-full w-10 h-10 bg-gray-200 flex items-center justify-center">
-                  <span className="text-xs text-gray-500">
-                    {story.title?.charAt(0) || "S"}
-                  </span>
+                  <span className="text-xs text-gray-500">{story.title?.charAt(0) || "S"}</span>
                 </div>
               )}
             </div>

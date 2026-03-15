@@ -42,8 +42,9 @@ export const metadata = {
 
 const Home = async () => {
   const lang = cookies().get("lang")?.value;
+  const langParams = lang ? { lang } : {};
   const banners = await fetcher<Paginate<Banner>>(
-    buildUrlQueryParams("v1/rest/banners/paginate", { lang }),
+    buildUrlQueryParams("v1/rest/banners/paginate", langParams),
     {
       cache: "no-cache",
     }

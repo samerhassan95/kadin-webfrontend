@@ -14,7 +14,7 @@ export const BannerCardHorizontal = ({ data, onClick }: BannerCardProps) => (
     onClick={() => onClick(data)}
     className="relative rounded-3xl overflow-hidden w-full  aspect-[2/1]"
   >
-    {(data.galleries?.[0]?.preview || data.galleries?.[0]?.path) ? (
+    {data.galleries?.[0]?.preview || data.galleries?.[0]?.path ? (
       <ImageWithFallBack
         src={data.galleries[0]?.preview || data.galleries[0]?.path}
         alt={data.translation?.title || "banner"}

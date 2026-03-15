@@ -19,7 +19,6 @@ export const Categories = () => {
     ["categories", "sub_main", searchParams.get("category_id")],
     ({ pageParam }) =>
       categoryService.getAll({
-        lang: language?.locale,
         type: "sub_main",
         page: pageParam,
         parent_id: searchParams.get("category_id"),

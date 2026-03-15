@@ -69,7 +69,6 @@ export const CheckoutDeliveryForm = ({ onNext, isPageChanging }: CheckoutScreenP
       addressService.getAll({
         country_id: country?.id,
         city_id: city?.id,
-        lang: language?.locale,
         page: pageParam,
       }),
     {

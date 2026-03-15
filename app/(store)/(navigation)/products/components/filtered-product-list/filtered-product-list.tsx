@@ -41,7 +41,6 @@ export const FilteredProductList = () => {
     extras: searchParams.getAll("extras"),
     has_discount: searchParams.get("has_discount"),
     currency_id: currency?.id,
-    lang: language?.locale,
     banner_id: searchParams.get("bannerId"),
     country_id: country?.id,
     city_id: city?.id,

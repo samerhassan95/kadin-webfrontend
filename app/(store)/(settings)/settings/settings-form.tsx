@@ -10,7 +10,7 @@ import MoonLineIcon from "remixicon-react/MoonLineIcon";
 import { Switch } from "@/components/switch";
 import BellIcon from "@/assets/icons/bell";
 import useSettingsStore from "@/global-store/settings";
-import { setCookie } from "cookies-next";
+import { setCookie, deleteCookie } from "cookies-next";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/services/user";
@@ -94,12 +94,30 @@ const SettingsForm = ({ languages, currencies }: SettingsFormProps) => {
   const handleSelectLanguage = async (lang: Language) => {
     updateSelectedLanguage(lang);
     await i18n.changeLanguage(lang.locale);
-    const html = document.documentElement;
-    setCookie("lang", lang.locale);
+
+    // Use language persistence utility for consistent storage and DOM updates
+    const { saveLanguageSettings, syncI18nextStorage } = await import(
+      "@/utils/language-persistence"
+    );
+    saveLanguageSettings({
+      locale: lang.locale,
+      direction: lang.backward ? "rtl" : "ltr",
+    });
+    syncI18nextStorage(lang.locale);
+
+    // Handle cookies - for Arabic, don't set lang cookie to avoid backend errors
+    if (lang.locale === "en") {
+      setCookie("lang", lang.locale);
+    } else {
+      // Remove lang cookie for Arabic to prevent backend errors
+      const { deleteCookie } = await import("cookies-next");
+      deleteCookie("lang");
+    }
     setCookie("dir", lang.backward ? "rtl" : "ltr");
-    html.setAttribute("lang", lang.locale);
-    html.setAttribute("dir", lang.backward ? "rtl" : "ltr");
+
     await Promise.all(pathsToValidate.map((path) => fetch(`api/revalidate?path=${path}`)));
+
+    // Update language on server - send actual language but handle errors gracefully
     if (user) {
       updateLanguage(lang.locale);
     }

@@ -15,6 +15,7 @@ import useSettingsStore from "@/global-store/settings";
 import useUserStore from "@/global-store/user";
 import { Button } from "@/components/button";
 import ThemeSwitcher from "./theme-switcher";
+import LanguageSwitcher from "./language-switcher";
 import links from "./sidebar-links";
 import { Avatar } from "./avatar";
 
@@ -24,7 +25,7 @@ interface ProfileSidebarProps {
 }
 
 const ProfileSidebar = ({ inDrawer, onClose }: ProfileSidebarProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const router = useRouter();
   const user = useUserStore((state) => state.user);
@@ -47,6 +48,26 @@ const ProfileSidebar = ({ inDrawer, onClose }: ProfileSidebarProps) => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Add cleanup effect
+  useEffect(
+    () => () => {
+      // Cleanup any pending operations when component unmounts
+      setIsLogoutModalOpen(false);
+    },
+    []
+  );
+
+  // Close sidebar when language changes to prevent DOM conflicts
+  useEffect(() => {
+    if (inDrawer && onClose) {
+      // Small delay to allow language change to complete
+      const timer = setTimeout(() => {
+        // Don't auto-close, let user manually close
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [i18n.language, inDrawer, onClose]);
 
   if ((isFetching && isLoading) || !mounted) {
     return (
@@ -163,6 +184,7 @@ const ProfileSidebar = ({ inDrawer, onClose }: ProfileSidebarProps) => {
         </button>
       )}
       <ThemeSwitcher />
+      <LanguageSwitcher />
       <ConfirmModal
         loading={isLoggingOut}
         isOpen={isLogoutModalOpen}

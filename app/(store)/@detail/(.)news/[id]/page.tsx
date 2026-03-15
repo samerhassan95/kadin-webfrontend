@@ -11,9 +11,7 @@ import useSettingsStore from "@/global-store/settings";
 const NewsDetailModal = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
   const language = useSettingsStore((state) => state.selectedLanguage);
-  const { data, isLoading } = useQuery(["(.)news", params.id], () =>
-    blogService.get(params.id, { lang: language?.locale })
-  );
+  const { data, isLoading } = useQuery(["(.)news", params.id], () => blogService.get(params.id));
   return (
     <Modal withCloseButton isOpen onClose={() => router.back()}>
       {isLoading ? <NewsContentLoading /> : <NewsContent data={data?.data} />}

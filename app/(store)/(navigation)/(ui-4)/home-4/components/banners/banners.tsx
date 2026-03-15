@@ -21,13 +21,9 @@ export const Banners = ({ banners }: { banners?: Paginate<Banner> }) => {
   const [selectedBanner, setSelectedBanner] = useState<Banner | undefined>();
   const { t } = useTranslation();
   const language = useSettingsStore((state) => state.selectedLanguage);
-  const { data: actualBanners } = useQuery(
-    ["banners", language?.locale],
-    () => bannerService.getAll({ lang: language?.locale }),
-    {
-      initialData: banners,
-    }
-  );
+  const { data: actualBanners } = useQuery(["banners"], () => bannerService.getAll(), {
+    initialData: banners,
+  });
   return (
     <div className="grid lg:grid-cols-7 grid-rows-7 gap-6 lg:mb-7 mb-4">
       <div

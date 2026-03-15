@@ -17,7 +17,6 @@ const ShopList = () => {
     queryFn: ({ pageParam }) =>
       shopService.getAll({
         page: pageParam,
-        lang: language?.locale,
         country_id: country?.id,
         city_id: city?.id,
       }),

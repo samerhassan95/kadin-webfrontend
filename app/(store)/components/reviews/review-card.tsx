@@ -38,7 +38,7 @@ export const ReviewCard = ({ data }: { data: Review }) => (
     </div>
     <span className="text-base leading-7">{data.comment}</span>
     <div className="flex items-center gap-3 mb-2.5">
-      {data.galleries?.map((img) => (
+      {data.galleries?.map((img) =>
         img.path ? (
           <ImageWithFallBack
             key={img.id}
@@ -49,11 +49,14 @@ export const ReviewCard = ({ data }: { data: Review }) => (
             className="aspect-square object-contain"
           />
         ) : (
-          <div key={img.id} className="w-[70px] h-[70px] bg-gray-200 rounded flex items-center justify-center">
+          <div
+            key={img.id}
+            className="w-[70px] h-[70px] bg-gray-200 rounded flex items-center justify-center"
+          >
             <span className="text-gray-500 text-xs">No Image</span>
           </div>
         )
-      ))}
+      )}
     </div>
   </div>
 );

@@ -5,7 +5,8 @@ import ErrorBoundary from "@/components/error-boundary/error-boundary";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const lang = cookies().get("lang")?.value;
-  const terms = await infoService.terms({ lang });
+  const params = lang ? { lang } : {};
+  const terms = await infoService.terms(params);
   return {
     title: terms?.data.translation?.title,
   };
@@ -13,8 +14,9 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const TermsPage = async () => {
   const lang = cookies().get("lang")?.value;
-  const terms = await infoService.terms({ lang });
-  
+  const params = lang ? { lang } : {};
+  const terms = await infoService.terms(params);
+
   return (
     <ErrorBoundary>
       <div className="xl:container px-2 md:px-4">

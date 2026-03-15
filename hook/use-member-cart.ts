@@ -6,23 +6,24 @@ import { cartService } from "@/services/cart";
 import { error } from "@/components/alert";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 export const useMemberCart = () => {
   const updateLocalCart = useCartStore((state) => state.updateList);
   const deleteMemberData = useCartStore((state) => state.deleteMemberData);
-  const language = useSettingsStore((state) => state.selectedLanguage);
   const country = useAddressStore((state) => state.country);
   const city = useAddressStore((state) => state.city);
   const memberCartId = useCartStore((state) => state.memberCartId);
   const userCartUuid = useCartStore((state) => state.userCartUuid);
   const router = useRouter();
   const { t } = useTranslation();
+  const lang = getSupportedLang();
   const params = {
     region_id: country?.region_id,
     country_id: country?.id,
     city_id: city?.id,
-    lang: language?.locale,
     user_cart_uuid: userCartUuid,
+    ...(lang && { lang }),
   };
   return useQuery({
     queryKey: ["cart", params],

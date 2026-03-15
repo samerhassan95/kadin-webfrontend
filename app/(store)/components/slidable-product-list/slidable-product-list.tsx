@@ -50,7 +50,6 @@ export const SlidableProductList = ({
   const language = useSettingsStore((state) => state.selectedLanguage);
   const tempParams: Record<string, string | number | undefined> = {
     ...params,
-    lang: language?.locale,
     currency_id: currency?.id,
   };
   if (productId) {

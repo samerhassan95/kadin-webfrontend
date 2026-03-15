@@ -11,19 +11,17 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Permissions-Policy',
-            value: 'unload=(), camera=(), microphone=(), geolocation=*'
-          }
-        ]
-      }
-    ]
-  },
+  headers: async () => [
+    {
+      source: "/(.*)",
+      headers: [
+        {
+          key: "Permissions-Policy",
+          value: "unload=(), camera=(), microphone=(), geolocation=()",
+        },
+      ],
+    },
+  ],
   images: {
     remotePatterns: [
       {

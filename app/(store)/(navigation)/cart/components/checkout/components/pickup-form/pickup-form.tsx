@@ -45,7 +45,6 @@ export const CheckoutPickupForm = ({ onNext, isPageChanging }: CheckoutScreenPro
       orderService.deliveryPoints({
         country_id: country?.id,
         city_id: city?.id,
-        lang: language?.locale,
         page: pageParam,
       }),
     getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,

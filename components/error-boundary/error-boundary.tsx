@@ -33,7 +33,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   render() {
     if (this.state.hasError) {
       const FallbackComponent = this.props.fallback;
-      
+
       if (FallbackComponent) {
         return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
       }

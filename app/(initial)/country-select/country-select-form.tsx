@@ -13,7 +13,7 @@ export const CountrySelectForm = ({ settings }: { settings: Record<string, strin
   return (
     <div className="md:p-8 p-4 rounded-xl bg-white bg-opacity-80 dark:bg-dark dark:bg-opacity-50 backdrop-blur-md grid lg:grid-cols-3 sm:grid-cols-2 w-11/12 md:w-auto gap-2 md:gap-4">
       <div className="lg:col-span-2  relative aspect-square">
-        {(settings?.logo && settings.logo !== "url.webp") ? (
+        {settings?.logo && settings.logo !== "url.webp" ? (
           <Image
             src={settings.logo}
             alt={settings?.title || ""}

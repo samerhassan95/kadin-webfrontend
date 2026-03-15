@@ -36,18 +36,16 @@ export const Avatar = ({ data }: { data?: UserDetail }) => {
           {isLoading && <LoadingCard centered />}
           {!preview && !data?.img ? (
             <ProfilePlaceholder size={100} name={data?.firstname} />
+          ) : preview || data?.img ? (
+            <Image
+              src={preview || data.img}
+              alt="profile"
+              width={100}
+              height={100}
+              className="object-cover rounded-full aspect-square"
+            />
           ) : (
-            (preview || data?.img) ? (
-              <Image
-                src={preview || data.img}
-                alt="profile"
-                width={100}
-                height={100}
-                className="object-cover rounded-full aspect-square"
-              />
-            ) : (
-              <ProfilePlaceholder size={100} name={data?.firstname} />
-            )
+            <ProfilePlaceholder size={100} name={data?.firstname} />
           )}
           <div className="absolute -bottom-1 -right-2 z-10 flex items-center justify-center p-0.5 bg-white rounded-full">
             <IconButton

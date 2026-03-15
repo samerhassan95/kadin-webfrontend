@@ -10,6 +10,7 @@ import {
   UserCart,
 } from "@/types/cart";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
+import { getSupportedLang } from "@/utils/get-supported-lang";
 
 export const cartService = {
   insert: async (data: InsertCartPayload) =>
@@ -25,19 +26,30 @@ export const cartService = {
     fetcher.post<DefaultResponse<CartCalculateRes>>(`v1/dashboard/user/cart/calculate/${id}`, {
       body: data,
     }),
-  get: (params: ParamsType) =>
-    fetcher<DefaultResponse<Cart>>(buildUrlQueryParams("v1/dashboard/user/cart", params)),
-  restCalculate: async (params?: ParamsType) =>
-    fetcher<DefaultResponse<CartCalculateRes>>(
-      buildUrlQueryParams("v1/rest/order/products/calculate", params)
-    ),
+  get: (params: ParamsType = {}) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<DefaultResponse<Cart>>(
+      buildUrlQueryParams("v1/dashboard/user/cart", finalParams)
+    );
+  },
+  restCalculate: async (params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<DefaultResponse<CartCalculateRes>>(
+      buildUrlQueryParams("v1/rest/order/products/calculate", finalParams)
+    );
+  },
   open: (data: OpenCartCredentials) =>
     fetcher.post<DefaultResponse<Cart>>(`v1/dashboard/user/cart/open`, { body: data }),
   setGroup: (id?: number) => fetcher.post(`v1/dashboard/user/cart/set-group/${id}`),
   join: (data: JoinCartCredentials) =>
     fetcher.post<DefaultResponse<UserCart>>(`v1/rest/cart/open`, { body: data }),
-  guestGet: (id: number, params?: ParamsType) =>
-    fetcher<DefaultResponse<Cart>>(buildUrlQueryParams(`v1/rest/cart/${id}`, params)),
+  guestGet: (id: number, params?: ParamsType) => {
+    const lang = getSupportedLang();
+    const finalParams = lang ? { lang, ...params } : params;
+    return fetcher<DefaultResponse<Cart>>(buildUrlQueryParams(`v1/rest/cart/${id}`, finalParams));
+  },
   deleteGuestProducts: (data: { cart_id: number; ids: number[] }) =>
     fetcher.delete(`v1/rest/cart/product/delete`, {
       body: data,

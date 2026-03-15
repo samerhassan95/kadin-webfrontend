@@ -20,13 +20,9 @@ export const Banners = ({ banners }: { banners?: Paginate<Banner> }) => {
   const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
   const { t } = useTranslation();
   const language = useSettingsStore((state) => state.selectedLanguage);
-  const { data: actualBanners, isLoading } = useQuery(
-    ["banners", language?.locale],
-    () => bannerService.getAll({ lang: language?.locale }),
-    {
-      initialData: banners,
-    }
-  );
+  const { data: actualBanners, isLoading } = useQuery(["banners"], () => bannerService.getAll(), {
+    initialData: banners,
+  });
   if (isLoading) {
     return (
       <div className="relative rounded-3xl md:h-[350px] h-60 w-full bg-gray-300 animate-pulse" />
