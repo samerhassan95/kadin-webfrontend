@@ -1,0 +1,453 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import HttpBackend from "i18next-http-backend";
+import I18NextChainedBackend from "i18next-chained-backend";
+import LocalStorageBackend from "i18next-localstorage-backend";
+import { DefaultResponse } from "@/types/global";
+import { getCookie } from "cookies-next";
+import { getSupportedLang } from "@/utils/get-supported-lang";
+import fetcher from "./fetcher";
+
+const getStoredLanguage = () => {
+  if (typeof window !== "undefined") {
+    // First check localStorage (our primary storage)
+    const storedLang = localStorage.getItem("lang");
+    const i18nextLng = localStorage.getItem("i18nextLng");
+
+    console.log(`getStoredLanguage: lang=${storedLang}, i18nextLng=${i18nextLng}`);
+
+    // Priority: i18nextLng > lang > cookie
+    // This ensures i18next's own storage takes precedence
+    const finalLang = i18nextLng || storedLang;
+
+    // If we have a language, ensure both keys are synced
+    if (finalLang) {
+      if (storedLang !== finalLang) {
+        localStorage.setItem("lang", finalLang);
+        console.log(`getStoredLanguage: Synced lang to ${finalLang}`);
+      }
+      if (i18nextLng !== finalLang) {
+        localStorage.setItem("i18nextLng", finalLang);
+        console.log(`getStoredLanguage: Synced i18nextLng to ${finalLang}`);
+      }
+      return finalLang;
+    }
+  }
+
+  // Only use cookie as last resort (and it might be undefined for Arabic)
+  const cookieLang = getCookie("lang")?.toString();
+  console.log(`getStoredLanguage: fallback to cookie=${cookieLang || "en"}`);
+  return cookieLang || "en";
+};
+
+const loadResources = async (locale: string) => {
+  // Always use supported backend language (only 'en' currently)
+  // Arabic translations are handled client-side only
+  const backendLang = getSupportedLang() || "en";
+  return fetcher<DefaultResponse<Record<string, string>>>(
+    `v1/rest/translations/paginate?lang=${backendLang}`,
+    {
+      headers: { "Access-Control-Allow-Origin": "*" },
+    }
+  ).catch((error) => {
+    console.log(error);
+  });
+};
+
+i18n
+  .use(I18NextChainedBackend)
+  .use(initReactI18next)
+  .init({
+    debug: false,
+    ns: "translation",
+    lng: getStoredLanguage(), // Use stored language instead of hardcoded "en"
+    fallbackLng: "en",
+    defaultNS: "translation",
+    // Configure i18next to use localStorage but with our custom key management
+    detection: {
+      order: ["localStorage"],
+      lookupLocalStorage: "i18nextLng",
+      caches: ["localStorage"],
+    },
+    resources: {
+      en: {
+        translation: {
+          "select.country": "Select country",
+          "select.city": "Select city",
+          "new.arrivals": "New arrivals",
+          "buy.now": "Buy now",
+          "add.to.cart": "Add to cart",
+          "more.information.about.the.product": "More information about the product",
+          "vip.arrivals": "VIP arrivals",
+          "latest.blogs": "Latest blogs",
+          "there.is.no.shops": "There are no shops",
+          "popular.brands": "Popular brands",
+          "liked.products": "Liked products",
+          "my.wishlist": "My wishlist",
+          "app.setting": "App settings",
+          "app.settings": "App settings",
+          "terms.and.conditions": "Terms and conditions",
+          "privacy.policy": "Privacy policy",
+          "app.theme": "App theme",
+          "have.questions": "Have questions?",
+          "questions.text": "If you have questions, contact us",
+          "help.center": "Help center",
+          "there.is.nothing": "There is nothing",
+          "see.all": "See all",
+          and: "and",
+          secon: "second",
+          in: "in",
+          also: "also",
+          "short.description": "Short description",
+          "with.this.product.also.buy": "With this product also buy",
+          "similar.products": "Similar products",
+          "go.to.cart": "Go to cart",
+          "also.bought": "Also bought",
+          "save.address": "Save address",
+          "order.detail": "Order detail",
+          "your.cart.is.empty": "Your cart is empty",
+          "search.products": "Search products",
+          "compare.list.is.empty": "Compare list is empty",
+          "clear.all": "Clear all",
+          "are.you.sure.want.to.clear.all.items.in.the.cart":
+            "Are you sure you want to clear all items in the cart?",
+          "go.to.checkout": "Go to checkout",
+          "there.is.no.products": "There are no products",
+          "item.added.to.compare.list": "Item added to compare list",
+          "main.info": "Main info",
+          "you.dont.have.an.account": "You don't have an account",
+          "sign.in": "Sign in",
+          "forgot.password": "Forgot password",
+          "email.or.phone": "Email or phone",
+          "i.agree.with": "I agree with",
+          "in.stock": "In stock",
+          "on.sale": "On sale",
+          "price.ranges": "Price ranges",
+          "you.already.have.an.account": "You already have an account",
+          "sign.up": "Sign up",
+          submit: "Submit",
+          "sms.not.sent": "SMS not sent",
+          "sign.up.with.email.not.working": "Sign up with email is not working",
+          "invalid.phone.number.format": "Invalid phone number format",
+          "next.step": "Next step",
+          payment: "Payment",
+          "first.name": "First name",
+          "last.name": "Last name",
+          "zip.code": "Zip code",
+          "home.number": "Home number",
+          "we.are.not.available.here": "We are not available here",
+          "payment.method": "Payment method",
+          "delivery.fee": "Delivery fee",
+          "your.order": "Your order",
+          "delivery.date": "Delivery date",
+          "last.step": "Last step",
+          "confirm.and.pay": "Confirm and pay",
+          firstname: "First name",
+          "email.address": "Email address",
+          lastname: "Last name",
+          "change.password": "Change password",
+          "order.history": "Order history",
+          "order.refunds": "Order refunds",
+          "parcel.checkout": "Parcel checkout",
+          "digital.products": "Digital products",
+          "group.order": "Group order",
+          "my.account": "My account",
+          "be.seller": "Be seller",
+          "edit.profile": "Edit profile",
+          "update.password": "Update password",
+          "old.password": "Old password",
+          "confirm.password": "Confirm password",
+          "order.id": "Order ID",
+          "shop.accepted": "Shop accepted",
+          "go.to.admin.panel": "Go to admin panel",
+          "download.invoice": "Download invoice",
+          "delivery.location": "Delivery location",
+          "no.order.refunds": "No order refunds",
+          "door.to.door.delivery": "Door to door delivery",
+          "pickup.from": "Pickup from",
+          "delivery.to": "Delivery to",
+          "payment.type": "Payment type",
+          "sender.details": "Sender details",
+          "receiver.details": "Receiver details",
+          "item.description": "Item description",
+          "remain.anonymous": "Remain anonymous",
+          "dont.notify.a.receipt": "Don't notify a receipt",
+          "no.active.parcels": "No active parcels",
+          "completed.parcels": "Completed parcels",
+          "no.parcel.history": "No parcel history",
+          "my.digital.products": "My digital products",
+          "there.is.no.digital.products": "There are no digital products",
+          "no.discounted.products": "No discounted products",
+          "no.liked.products": "No liked products",
+          "group.order.text": "Group order text",
+          "manage.group.order": "Manage group order",
+          "get.notification": "Get notification",
+          "delivery.addresses": "Delivery addresses",
+          "create.new.address": "Create new address",
+          "edit.address": "Edit address",
+          "comment.for.product": "Comment for product",
+          theme: "Theme",
+          language: "Language",
+          english: "English",
+          arabic: "Arabic",
+          wallet: "Wallet",
+          information: "Information",
+          setting: "Setting",
+          logout: "Logout",
+          compare: "Compare",
+          blog: "Blog",
+          parcels: "Parcels",
+          hotline: "Hotline",
+          help: "Help",
+          all: "All",
+          sale: "Sale",
+          "best.offer": "Best Offer",
+          "popular.and.best.products": "Popular and best products",
+          "free.shipping": "Free Shipping",
+          "free.shipping.and.free.return": "Free Shipping & Free Return",
+          notifications: "Notifications",
+          "mark.as.read": "Mark as read",
+          news: "News",
+          orders: "Orders",
+          hello: "Hello",
+          products: "Products",
+          coupon: "Coupon",
+          total: "Total",
+          "shop.title": "Shop Title",
+        },
+      },
+      ar: {
+        translation: {
+          "select.country": "اختر الدولة",
+          "select.city": "اختر المدينة",
+          "new.arrivals": "وصل حديثًا",
+          "buy.now": "اشترِ الآن",
+          "add.to.cart": "أضف إلى السلة",
+          "more.information.about.the.product": "مزيد من المعلومات حول المنتج",
+          "vip.arrivals": "وصولات VIP",
+          "latest.blogs": "أحدث المدونات",
+          "there.is.no.shops": "لا توجد متاجر",
+          "popular.brands": "العلامات التجارية الشائعة",
+          "liked.products": "منتجات أعجبتك",
+          "my.wishlist": "قائمتي المفضلة",
+          "app.setting": "إعدادات التطبيق",
+          "app.settings": "إعدادات التطبيق",
+          "terms.and.conditions": "الشروط والأحكام",
+          "privacy.policy": "سياسة الخصوصية",
+          "app.theme": "مظهر التطبيق",
+          "have.questions": "لديك أسئلة؟",
+          "questions.text": "إن كان لديك أي أسئلة، تواصل معنا",
+          "help.center": "مركز المساعدة",
+          "there.is.nothing": "لا يوجد شيء",
+          "see.all": "عرض الكل",
+          and: "و",
+          secon: "الثاني",
+          in: "في",
+          also: "أيضًا",
+          "short.description": "وصف قصير",
+          "with.this.product.also.buy": "مع هذا المنتج اشترِ أيضًا",
+          "similar.products": "منتجات مشابهة",
+          "go.to.cart": "اذهب إلى السلة",
+          "also.bought": "اشترى أيضًا",
+          "save.address": "احفظ العنوان",
+          "order.detail": "تفاصيل الطلب",
+          "your.cart.is.empty": "سلة التسوق فارغة",
+          "search.products": "ابحث عن المنتجات",
+          "compare.list.is.empty": "قائمة المقارنة فارغة",
+          "clear.all": "مسح الكل",
+          "are.you.sure.want.to.clear.all.items.in.the.cart":
+            "هل أنت متأكد من أنك تريد مسح جميع العناصر في السلة؟",
+          "go.to.checkout": "الذهاب للدفع",
+          "there.is.no.products": "لا توجد منتجات",
+          "item.added.to.compare.list": "تمت إضافة العنصر إلى قائمة المقارنة",
+          "main.info": "المعلومات الأساسية",
+          "you.dont.have.an.account": "ليس لديك حساب",
+          "sign.in": "تسجيل الدخول",
+          "forgot.password": "نسيت كلمة المرور",
+          "email.or.phone": "البريد الإلكتروني أو الهاتف",
+          "i.agree.with": "أوافق على",
+          "in.stock": "متوفر",
+          "on.sale": "في التخفيضات",
+          "price.ranges": "نطاقات الأسعار",
+          "you.already.have.an.account": "لديك حساب بالفعل",
+          "sign.up": "إنشاء حساب",
+          submit: "إرسال",
+          "sms.not.sent": "لم يتم إرسال الرسالة النصية",
+          "sign.up.with.email.not.working": "التسجيل بالبريد الإلكتروني لا يعمل",
+          "invalid.phone.number.format": "تنسيق رقم الهاتف غير صحيح",
+          "next.step": "الخطوة التالية",
+          payment: "الدفع",
+          "first.name": "الاسم الأول",
+          "last.name": "اسم العائلة",
+          "zip.code": "الرمز البريدي",
+          "home.number": "رقم المنزل",
+          "we.are.not.available.here": "نحن غير متوفرون هنا",
+          "payment.method": "طريقة الدفع",
+          "delivery.fee": "رسوم التوصيل",
+          "your.order": "طلبك",
+          "delivery.date": "تاريخ التوصيل",
+          "last.step": "الخطوة الأخيرة",
+          "confirm.and.pay": "تأكيد والدفع",
+          firstname: "الاسم الأول",
+          "email.address": "عنوان البريد الإلكتروني",
+          lastname: "اسم العائلة",
+          "change.password": "تغيير كلمة المرور",
+          "order.history": "تاريخ الطلبات",
+          "order.refunds": "استرداد الطلبات",
+          "parcel.checkout": "دفع الطرد",
+          "digital.products": "المنتجات الرقمية",
+          "group.order": "طلب جماعي",
+          "my.account": "حسابي",
+          "be.seller": "كن بائعاً",
+          "edit.profile": "تعديل الملف الشخصي",
+          "update.password": "تحديث كلمة المرور",
+          "old.password": "كلمة المرور القديمة",
+          "confirm.password": "تأكيد كلمة المرور",
+          "order.id": "رقم الطلب",
+          "shop.accepted": "المتجر وافق",
+          "go.to.admin.panel": "الذهاب إلى لوحة الإدارة",
+          "download.invoice": "تحميل الفاتورة",
+          "delivery.location": "موقع التوصيل",
+          "no.order.refunds": "لا توجد استردادات للطلب",
+          "door.to.door.delivery": "توصيل من الباب إلى الباب",
+          "pickup.from": "الاستلام من",
+          "delivery.to": "التوصيل إلى",
+          "payment.type": "نوع الدفع",
+          "sender.details": "تفاصيل المرسل",
+          "receiver.details": "تفاصيل المستقبل",
+          "item.description": "وصف العنصر",
+          "remain.anonymous": "البقاء مجهول الهوية",
+          "dont.notify.a.receipt": "لا تُرسل إشعار بالإيصال",
+          "no.active.parcels": "لا توجد طرود نشطة",
+          "completed.parcels": "الطرود المكتملة",
+          "no.parcel.history": "لا يوجد تاريخ للطرود",
+          "my.digital.products": "منتجاتي الرقمية",
+          "there.is.no.digital.products": "لا توجد منتجات رقمية",
+          "no.discounted.products": "لا توجد منتجات مخفضة",
+          "no.liked.products": "لا توجد منتجات مفضلة",
+          "group.order.text": "نص الطلب الجماعي",
+          "manage.group.order": "إدارة الطلب الجماعي",
+          "get.notification": "الحصول على إشعار",
+          "delivery.addresses": "عناوين التوصيل",
+          "create.new.address": "إنشاء عنوان جديد",
+          "edit.address": "تعديل العنوان",
+          "comment.for.product": "تعليق على المنتج",
+          theme: "المظهر",
+          language: "اللغة",
+          english: "الإنجليزية",
+          arabic: "العربية",
+          wallet: "المحفظة",
+          information: "المعلومات",
+          setting: "الإعدادات",
+          logout: "تسجيل الخروج",
+          compare: "المقارنة",
+          blog: "المدونة",
+          parcels: "الطرود",
+          hotline: "الخط الساخن",
+          help: "المساعدة",
+          all: "الكل",
+          sale: "التخفيضات",
+          "best.offer": "أفضل عرض",
+          "popular.and.best.products": "المنتجات الشائعة والأفضل",
+          "free.shipping": "شحن مجاني",
+          "free.shipping.and.free.return": "شحن مجاني وإرجاع مجاني",
+          notifications: "الإشعارات",
+          "mark.as.read": "تحديد كمقروء",
+          news: "الأخبار",
+          orders: "الطلبات",
+          hello: "مرحباً",
+          products: "المنتجات",
+          coupon: "الكوبون",
+          total: "المجموع",
+          "shop.title": "عنوان المتجر",
+        },
+      },
+    },
+    react: {
+      useSuspense: true,
+    },
+    backend: {
+      backends: [LocalStorageBackend, HttpBackend],
+      backendOptions: [
+        {
+          expirationTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+        },
+        {
+          loadPath: "{{lng}}|{{ns}}",
+          request: (options: any, url: any, payload: any, callback: any) => {
+            try {
+              const [lng] = url.split("|");
+              loadResources(lng).then((response) => {
+                callback(null, {
+                  data: response?.data,
+                  status: 200,
+                });
+              });
+            } catch (e) {
+              callback(null, {
+                data: {},
+                status: 200,
+              });
+            }
+          },
+        },
+      ],
+    },
+  });
+
+// Initialize language from localStorage after DOM is ready
+if (typeof window !== "undefined") {
+  // Listen for i18next language changes and sync localStorage
+  i18n.on("languageChanged", (lng) => {
+    console.log(`i18n languageChanged event: ${lng}`);
+
+    // Sync both localStorage keys whenever i18n language changes
+    try {
+      localStorage.setItem("lang", lng);
+      localStorage.setItem("i18nextLng", lng);
+
+      // Also update DOM attributes
+      document.documentElement.setAttribute("lang", lng);
+      const direction = lng === "ar" ? "rtl" : "ltr";
+      document.documentElement.setAttribute("dir", direction);
+      localStorage.setItem("dir", direction);
+    } catch (error) {
+      console.warn("Failed to sync language in localStorage:", error);
+    }
+  });
+
+  // Wait for DOM to be ready and ensure proper initialization
+  const initializeStoredLanguage = () => {
+    const storedLanguage = getStoredLanguage();
+    console.log(`i18n initialization: stored=${storedLanguage}, current=${i18n.language}`);
+
+    // Always ensure i18n uses the stored language, even if it's the same
+    // This helps with cases where i18n might not have initialized properly
+    if (storedLanguage) {
+      console.log(`i18n: Setting language to ${storedLanguage}`);
+      i18n.changeLanguage(storedLanguage);
+    }
+  };
+
+  // Initialize immediately if DOM is already ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeStoredLanguage);
+  } else {
+    // Use setTimeout to ensure this runs after i18n is fully initialized
+    setTimeout(initializeStoredLanguage, 0);
+  }
+
+  // Also listen for localStorage changes from other tabs
+  window.addEventListener("storage", (e) => {
+    if (
+      (e.key === "lang" || e.key === "i18nextLng") &&
+      e.newValue &&
+      e.newValue !== i18n.language
+    ) {
+      console.log(`i18n: Storage change detected, changing language to ${e.newValue}`);
+      i18n.changeLanguage(e.newValue);
+    }
+  });
+}
+
+export default i18n;
