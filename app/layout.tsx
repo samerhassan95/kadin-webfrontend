@@ -53,9 +53,11 @@ export default async ({ children }: { children: React.ReactNode }) => {
     },
   ];
 
+  // Use the backend's default currency to avoid validation errors when the API is queried.
+  // The backend data usually has a default currency with id 2 (USD).
   const defaultCurrencies = [
     {
-      id: 1,
+      id: 2,
       title: "USD",
       symbol: "$",
       rate: 1,
@@ -66,7 +68,7 @@ export default async ({ children }: { children: React.ReactNode }) => {
 
   const parsedSettings = {
     title: 'Kadin Marketplace',
-    currency_id: '1',
+    currency_id: '2',
     system_lang: 'en',
     ui_type: process.env.NEXT_PUBLIC_UI_TYPE || '1',
     favicon: '/favicon.ico',

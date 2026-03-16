@@ -9,7 +9,7 @@ export default async ({ children }: { children: React.ReactNode }) => {
   const defaultSettings = {
     data: [
       { key: 'title', value: 'Kadin Marketplace' },
-      { key: 'currency_id', value: '1' },
+      { key: 'currency_id', value: '2' },
       { key: 'system_lang', value: 'en' }
     ]
   };

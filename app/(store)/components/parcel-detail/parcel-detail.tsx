@@ -82,6 +82,7 @@ const ParcelDetail = ({ id }: { id?: number | null }) => {
   const handleCancelParcel = () => {
     cancelParcel();
   };
+
   return (
     <div className="p-5">
       <div className="flex items-center gap-2.5">
