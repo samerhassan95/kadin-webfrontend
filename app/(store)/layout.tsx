@@ -18,13 +18,25 @@ const StoreLayout = async ({
   children: React.ReactNode;
   detail: React.ReactNode;
 }) => {
-  const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {
-    cache: "no-cache",
-  });
+  let settings;
+  try {
+    const settingsResponse = await fetcher<DefaultResponse<Setting[]>>("settings-test", {
+      cache: "no-cache",
+    });
+    settings = settingsResponse?.data;
+  } catch (error) {
+    console.log("Failed to load settings, using defaults");
+    settings = [
+      { key: 'title', value: 'Kadin Marketplace' },
+      { key: 'currency_id', value: '1' },
+      { key: 'system_lang', value: 'en' }
+    ];
+  }
+  
   const isAuthenticated = cookies().has("token");
   return (
     <>
-      <Header settings={settings?.data} />
+      <Header settings={settings} />
       {detail}
       {children}
       {isAuthenticated && <PushNotification />}

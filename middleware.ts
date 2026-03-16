@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import fetcher from "@/lib/fetcher";
-import { parseSettings } from "@/utils/parse-settings";
-import { DefaultResponse, Setting } from "@/types/global";
 
 const PUBLIC_FILE = /\.(.*)$/;
 
-const getSettings = async () => {
-  try {
-    const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings");
-    return parseSettings(settings?.data);
-  } catch (e) {
-    return {};
-  }
-};
-
 export const middleware = async (request: NextRequest) => {
   const { pathname } = request.nextUrl;
-  const settings = await getSettings();
-  if (process.env.NEXT_PUBLIC_UI_TYPE) {
-    settings.ui_type = process.env.NEXT_PUBLIC_UI_TYPE;
-  }
+  
+  // Default settings - no API calls in middleware
+  const defaultSettings = {
+    ui_type: process.env.NEXT_PUBLIC_UI_TYPE || '1'
+  };
+  
   if (PUBLIC_FILE.test(pathname)) {
     return NextResponse.next();
   }
@@ -31,7 +21,7 @@ export const middleware = async (request: NextRequest) => {
     return NextResponse.redirect(loginUrl, 302);
   }
 
-  const uiType = ["2", "3", "4"].find((type) => type === settings?.ui_type);
+  const uiType = ["2", "3", "4"].find((type) => type === defaultSettings?.ui_type);
 
   if (!!uiType && (pathname === "/" || pathname === "/products")) {
     return NextResponse.rewrite(

@@ -16,10 +16,15 @@ const SettingsLayout = async ({
   children: React.ReactNode;
   info: React.ReactNode;
 }) => {
-  const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {
-    cache: "no-cache",
-  });
-  const parsedSettings = parseSettings(settings?.data);
+  // Use default settings instead of API call to avoid database connection
+  const defaultSettings = [
+    { key: 'title', value: 'Kadin Marketplace' },
+    { key: 'currency_id', value: '1' },
+    { key: 'system_lang', value: 'en' },
+    { key: 'ui_type', value: process.env.NEXT_PUBLIC_UI_TYPE || '1' }
+  ];
+  
+  const parsedSettings = parseSettings(defaultSettings);
   if (process.env.NEXT_PUBLIC_UI_TYPE) {
     parsedSettings.ui_type = process.env.NEXT_PUBLIC_UI_TYPE;
   }

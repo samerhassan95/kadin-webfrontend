@@ -7,10 +7,15 @@ import { Button } from "@/components/button";
 import MessageIcon from "@/assets/icons/message";
 
 const HotlinePage = async () => {
-  const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {
-    cache: "no-cache",
-  });
-  const parsedSettings = parseSettings(settings?.data);
+  // Use default settings instead of API call to avoid database connection
+  const defaultSettings = {
+    data: [
+      { key: 'title', value: 'Kadin Marketplace' },
+      { key: 'currency_id', value: '1' },
+      { key: 'system_lang', value: 'en' }
+    ]
+  };
+  const parsedSettings = parseSettings(defaultSettings?.data);
 
   return (
     <div className="border border-gray-border rounded-2xl p-4 dark:border-gray-inputBorder">

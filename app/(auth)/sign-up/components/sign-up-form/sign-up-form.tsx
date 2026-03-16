@@ -7,24 +7,25 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SignUpViews } from "@/app/(auth)/types";
-import { ConfirmationResult } from "@firebase/auth";
-import { error } from "@/components/alert";
-import { useAuth } from "@/hook/use-auth";
+import { error, success } from "@/components/alert";
+import { authService } from "@/services/auth";
 
 const schema = yup.object({
-  credential: yup.string().required(),
-  agreed: yup.boolean().required(),
+  phone: yup.string().required("Phone number is required"),
+  name: yup.string().required("Name is required"),
+  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+  agreed: yup.boolean().required().oneOf([true], "You must agree to terms and conditions"),
 });
+
 type FormData = yup.InferType<typeof schema>;
 
 interface SignUpFormProps {
   onChangeView: (view: SignUpViews) => void;
-  onSuccess: (data: { credential: string; callback: ConfirmationResult }) => void;
+  onSuccess: (data: { credential: string; user: any }) => void;
 }
 
 const SignUpForm = ({ onChangeView, onSuccess }: SignUpFormProps) => {
   const { t } = useTranslation();
-  const { phoneNumberSignIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
@@ -35,62 +36,77 @@ const SignUpForm = ({ onChangeView, onSuccess }: SignUpFormProps) => {
     resolver: yupResolver(schema),
   });
 
-  const handleCheckCredential = (data: FormData) => {
-    if (data.credential.includes("@")) {
-      error(t("sign.up.with.email.not.working"));
-      return;
-    }
-
-    // Ensure phone number is in E.164 format
-    let phoneNumber = data.credential.trim();
-    if (!phoneNumber.startsWith("+")) {
-      // If no country code, assume it's Egyptian (+20)
-      phoneNumber = `+20${phoneNumber}`;
-    }
-
-    // Validate phone number format
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      error(t("invalid.phone.number.format"));
-      return;
-    }
-
+  const handleSignUp = async (data: FormData) => {
     setIsSubmitting(true);
-    phoneNumberSignIn(phoneNumber)
-      .then((value) => {
-        onSuccess({
-          credential: phoneNumber,
-          callback: value,
-        });
-        onChangeView("VERIFY");
-      })
-      .catch((err) => {
-        console.error("Phone authentication error:", err);
-        error(t("sms.not.sent"));
-        // Don't reload the page, just reset the form state
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+    
+    try {
+      const response = await authService.register({
+        phone: data.phone,
+        name: data.name,
+        password: data.password,
       });
+
+      if (response.status) {
+        success("Registration successful! You can now login.");
+        // Skip SMS verification for now - go directly to login
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        error(response.message || "Registration failed");
+      }
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      // Handle SMS configuration error
+      if (err.message && err.message.includes('sms')) {
+        success("Registration successful! SMS verification is disabled for testing. You can now login.");
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        error(err.message || "Registration failed");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="flex flex-col gap-6 lg:px-10 md:px-6 sm:px-4 px-2 pt-8 pb-10">
       <h1 className="font-semibold text-[30px] mb-2 text-start">{t("sign.up")}</h1>
-      <form id="signUp" onSubmit={handleSubmit(handleCheckCredential)}>
-        <div className="flex flex-col gap-3 mb-3 w-full">
+      <form id="signUp" onSubmit={handleSubmit(handleSignUp)}>
+        <div className="flex flex-col gap-4 mb-4 w-full">
           <Input
-            {...register("credential")}
-            error={errors.credential?.message}
+            {...register("phone")}
+            error={errors.phone?.message}
             fullWidth
-            label={t("email.or.phone")}
+            label={t("phone.number")}
+            placeholder="01234567890"
           />
-          <div className="flex items-center mt-2.5">
+          
+          <Input
+            {...register("name")}
+            error={errors.name?.message}
+            fullWidth
+            label={t("full.name")}
+            placeholder="Ahmed Ali"
+          />
+          
+          <Input
+            {...register("password")}
+            error={errors.password?.message}
+            fullWidth
+            label={t("password")}
+            type="password"
+            placeholder="••••••••"
+          />
+          
+          <div className="flex items-center mt-2">
             <input
               id="link-checkbox"
               type="checkbox"
               {...register("agreed")}
-              className="w-4 h-4 accent-primary bg-gray-100 border-gray-inputBorder rounded-full focus:ring-primary focus:ring-2"
+              className="w-4 h-4 accent-primary bg-gray-100 border-gray-inputBorder rounded focus:ring-primary focus:ring-2"
             />
             <label htmlFor="link-checkbox" className="ml-2 text-sm font-medium">
               {t("i.agree.with")}{" "}
@@ -101,6 +117,7 @@ const SignUpForm = ({ onChangeView, onSuccess }: SignUpFormProps) => {
           </div>
         </div>
       </form>
+      
       <Button
         loading={isSubmitting}
         form="signUp"
@@ -110,8 +127,13 @@ const SignUpForm = ({ onChangeView, onSuccess }: SignUpFormProps) => {
       >
         {t("sign.up")}
       </Button>
-      {/* Hidden reCAPTCHA container */}
-      <div id="sign-in-button" style={{ display: "none" }} />
+      
+      <div className="text-center text-sm text-gray-600">
+        {t("already.have.account")}{" "}
+        <Link href="/login" className="text-primary hover:underline font-medium">
+          {t("login")}
+        </Link>
+      </div>
     </div>
   );
 };

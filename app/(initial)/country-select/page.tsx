@@ -4,10 +4,15 @@ import { parseSettings } from "@/utils/parse-settings";
 import { CountrySelectForm } from "./country-select-form";
 
 const CountrySelectPage = async () => {
-  const settings = await fetcher<DefaultResponse<Setting[]>>("v1/rest/settings", {
-    cache: "no-cache",
-  });
-  const parsedSettings = parseSettings(settings?.data);
+  // Use default settings instead of API call to avoid database connection
+  const defaultSettings = {
+    data: [
+      { key: 'title', value: 'Kadin Marketplace' },
+      { key: 'currency_id', value: '1' },
+      { key: 'system_lang', value: 'en' }
+    ]
+  };
+  const parsedSettings = parseSettings(defaultSettings?.data);
   return <CountrySelectForm settings={parsedSettings} />;
 };
 

@@ -7,7 +7,6 @@ import "@/lib/i18n";
 import { setCookie, deleteCookie } from "cookies-next";
 import { useTranslation } from "react-i18next";
 import useAddressStore from "@/global-store/address";
-import LanguageInitializer from "@/components/language-initializer";
 import {
   saveLanguageSettings,
   loadLanguageSettings,
@@ -140,7 +139,6 @@ const GlobalProvider = ({
 
   return (
     <>
-      <LanguageInitializer />
       {children}
     </>
   );

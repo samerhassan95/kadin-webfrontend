@@ -41,14 +41,9 @@ export const metadata = {
 };
 
 const Home = async () => {
-  const lang = cookies().get("lang")?.value;
-  const langParams = lang ? { lang } : {};
-  const banners = await fetcher<Paginate<Banner>>(
-    buildUrlQueryParams("v1/rest/banners/paginate", langParams),
-    {
-      cache: "no-cache",
-    }
-  );
+  // Use static data to avoid database connection issues
+  const banners = { data: [] };
+  
   return (
     <>
       <section className="xl:container px-2 md:px-4">
