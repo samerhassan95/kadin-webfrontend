@@ -31,6 +31,12 @@ const nextConfig = {
         pathname: "/storage/**",
       },
       {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8005",
+        pathname: "/storage/**",
+      },
+      {
         protocol: "https",
         hostname: "back.kadin.app",
         port: "",
