@@ -139,22 +139,14 @@ const ParcelDetail = ({ id }: { id?: number | null }) => {
       {parcelDetail?.deliveryman && (
         <div className="p-2.5 bg-white bg-opacity-30 rounded-2xl mt-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            {parcelDetail?.deliveryman.img ? (
-              {parcelDetail?.deliveryman?.img ? (
-                <Image
-                  width={50}
-                  height={50}
-                  className="rounded-full aspect-square"
-                  src={parcelDetail.deliveryman.img}
-                  alt={parcelDetail.deliveryman?.firstname || ""}
-                />
-              ) : (
-                <div className="w-[50px] h-[50px] rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500 text-sm">
-                    {parcelDetail?.deliveryman?.firstname?.charAt(0) || "D"}
-                  </span>
-                </div>
-              )}
+            {parcelDetail?.deliveryman?.img ? (
+              <Image
+                width={50}
+                height={50}
+                className="rounded-full aspect-square"
+                src={parcelDetail.deliveryman.img}
+                alt={parcelDetail.deliveryman?.firstname || ""}
+              />
             ) : (
               <ProfilePlaceholder size={50} name={parcelDetail?.deliveryman?.firstname} />
             )}
