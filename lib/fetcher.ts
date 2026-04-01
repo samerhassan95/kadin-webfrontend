@@ -11,6 +11,16 @@ interface CustomRequestInit extends RequestInit {
 
 const fetcher = async <T>(input: string | string[], init?: CustomRequestInit): Promise<T> => {
   const url = `${BASE_URL}${Array.isArray(input) ? input[0] : input}`;
+  
+  // Debug logging
+  if (!BASE_URL) {
+    console.error('❌ BASE_URL is undefined!', {
+      BASE_URL,
+      input,
+      constructedUrl: url,
+      env: process.env.NEXT_PUBLIC_BASE_URL
+    });
+  }
 
   try {
     const res = await fetch(url, {
@@ -85,3 +95,42 @@ fetcher.delete = async <T>(input: string, init?: MutationRequestInit): Promise<T
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(init?.body),
   });
+
+// Request function for services
+interface RequestOptions {
+  url: string;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  params?: Record<string, any>;
+  body?: unknown;
+}
+
+export const request = async <T>(options: RequestOptions): Promise<T> => {
+  const { url, method = 'GET', params, body } = options;
+  
+  // Build URL with query parameters
+  let fullUrl = url;
+  if (params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    if (queryString) {
+      fullUrl += (url.includes('?') ? '&' : '?') + queryString;
+    }
+  }
+
+  if (method === 'GET') {
+    return fetcher<T>(fullUrl);
+  } else if (method === 'POST') {
+    return fetcher.post<T>(fullUrl, { body });
+  } else if (method === 'PUT') {
+    return fetcher.put<T>(fullUrl, { body });
+  } else if (method === 'DELETE') {
+    return fetcher.delete<T>(fullUrl, { body });
+  }
+  
+  throw new Error(`Unsupported method: ${method}`);
+};

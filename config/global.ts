@@ -1,4 +1,4 @@
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8005/api/';
 
 const envLocation = process.env.NEXT_PUBLIC_DEFAULT_LOCATION?.split(",");
 export const defaultLocation = envLocation

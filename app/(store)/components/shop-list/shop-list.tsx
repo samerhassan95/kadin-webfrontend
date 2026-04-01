@@ -4,33 +4,48 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { shopService } from "@/services/shop";
 import { extractDataFromPagination } from "@/utils/extract-data";
 import { InfiniteLoader } from "@/components/infinite-loader";
-import useSettingsStore from "@/global-store/settings";
 import { Empty } from "@/components/empty";
-import useAddressStore from "@/global-store/address";
 
 const ShopList = () => {
-  const language = useSettingsStore((state) => state.selectedLanguage);
-  const country = useAddressStore((state) => state.country);
-  const city = useAddressStore((state) => state.city);
-  const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery({
-    queryKey: ["shops", country?.id, city?.id],
+  const { data, isFetchingNextPage, hasNextPage, fetchNextPage, error, isLoading } = useInfiniteQuery({
+    queryKey: ["shops", "has_reels"],
     queryFn: ({ pageParam }) =>
       shopService.getAll({
-        page: pageParam,
-        country_id: country?.id,
-        city_id: city?.id,
+        page: pageParam || 1,
+        has_reels: 1,
       }),
-    suspense: true,
-    getNextPageParam: (lastPage) => lastPage.links.next && lastPage.meta.current_page + 1,
+    suspense: false,
+    getNextPageParam: (lastPage) => lastPage.links?.next && lastPage.meta?.current_page + 1,
   });
-  const shopList = extractDataFromPagination(data?.pages);
-  if (shopList && shopList.length === 0) {
-    return <Empty text="there.is.no.shops" />;
+
+  if (isLoading) {
+    return (
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 md:gap-7 gap-4 animate-pulse my-7">
+        {Array.from(Array(6).keys()).map((item) => (
+          <div key={item} className="aspect-[450/260] bg-gray-300 rounded-3xl" />
+        ))}
+      </div>
+    );
   }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center text-red-500">
+        Error loading shops: {error.message}
+      </div>
+    );
+  }
+
+  const shopList = extractDataFromPagination(data?.pages);
+  
+  if (!shopList || shopList.length === 0) {
+    return <Empty text="No shops with reels found" />;
+  }
+  
   return (
     <InfiniteLoader loadMore={fetchNextPage} hasMore={hasNextPage} loading={isFetchingNextPage}>
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 md:gap-7 gap-4 mt-4">
-        {shopList?.map((shop) => (
+        {shopList.map((shop) => (
           <ShopCard data={shop} key={shop.id} />
         ))}
       </div>

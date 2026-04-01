@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Frontend API Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Web Frontend API Debug</h1>
+    
+    <div class="test-section info">
+        <h2>📋 Issue Analysis</h2>
+        <p>The web frontend is making API calls to <code>localhost:3000</code> instead of <code>localhost:8005</code></p>
+        <p>This suggests the BASE_URL environment variable is not being loaded correctly.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Environment Check</h2>
+        <button onclick="checkEnvironment()">Check Environment Variables</button>
+        <div id="env-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 API Test</h2>
+        <button onclick="testCorrectAPI()">Test Correct API (localhost:8005)</button>
+        <button onclick="testWrongAPI()">Test Wrong API (localhost:3000)</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🏪 Shops API Test</h2>
+        <button onclick="testShopsAPI()">Test Shops API</button>
+        <div id="shops-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎬 Reels API Test</h2>
+        <button onclick="testReelsAPI()">Test Reels API</button>
+        <div id="reels-result"></div>
+    </div>
+
+    <script>
+        function checkEnvironment() {
+            const resultDiv = document.getElementById('env-result');
+            
+            // Check if we can access Next.js environment variables
+            const baseUrl = process?.env?.NEXT_PUBLIC_BASE_URL || 'Not available in browser';
+            
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <h3>Environment Variables</h3>
+                    <p><strong>NEXT_PUBLIC_BASE_URL:</strong> ${baseUrl}</p>
+                    <p><strong>Current Location:</strong> ${window.location.origin}</p>
+                    <p><strong>Expected API Base:</strong> http://localhost:8005/api/</p>
+                    <p><strong>Note:</strong> Environment variables are only available server-side in Next.js</p>
+                </div>
+            `;
+        }
+
+        async function testCorrectAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p>Testing correct API endpoint...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8005/api/v1/rest/shops/paginate?perPage=5');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Correct API Working</h3>
+                            <p>Status: ${response.status}</p>
+                            <p>Data received: ${data.data?.data?.length || 0} shops</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ API Error</h3>
+                            <p>Status: ${response.status}</p>
+                            <p>Message: ${data.message || 'Unknown error'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Network Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testWrongAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p>Testing wrong API endpoint...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/v1/rest/shops/paginate?perPage=5');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Wrong API Should Not Work</h3>
+                        <p>Status: ${response.status}</p>
+                        <p>This should fail - if it works, there's a proxy issue</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Wrong API Correctly Failed</h3>
+                        <p>Error: ${error.message}</p>
+                        <p>This is expected - the wrong API should not work</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testShopsAPI() {
+            const resultDiv = document.getElementById('shops-result');
+            resultDiv.innerHTML = '<p>Testing shops API...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8005/api/v1/rest/shops/paginate?has_reels=1&perPage=5');
+                const data = await response.json();
+                
+                if (response.ok && data.status) {
+                    const shops = data.data?.data || [];
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Shops API Working</h3>
+                            <p>Found ${shops.length} shops with reels</p>
+                            <details>
+                                <summary>View Response</summary>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'API returned error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Shops API Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testReelsAPI() {
+            const resultDiv = document.getElementById('reels-result');
+            resultDiv.innerHTML = '<p>Testing reels API...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8005/api/v1/rest/reels/paginate?perPage=5');
+                const data = await response.json();
+                
+                if (response.ok && data.status) {
+                    const reels = data.data?.data || [];
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Reels API Working</h3>
+                            <p>Found ${reels.length} reels</p>
+                            <div style="display: flex; gap: 10px; margin: 10px 0;">
+                                ${reels.slice(0, 3).map(reel => `
+                                    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                                        <video width="150" height="100" controls>
+                                            <source src="${reel.video_url}" type="video/mp4">
+                                        </video>
+                                        <p><small>Shop: ${reel.shop?.translation?.title || 'N/A'}</small></p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <details>
+                                <summary>View Response</summary>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </details>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(data.message || 'API returned error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Reels API Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run environment check
+        window.onload = function() {
+            checkEnvironment();
+        };
+    </script>
+</body>
+</html>

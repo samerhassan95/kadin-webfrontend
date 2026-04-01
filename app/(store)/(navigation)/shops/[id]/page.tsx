@@ -4,7 +4,6 @@ import { DefaultResponse } from "@/types/global";
 import { Shop } from "@/types/shop";
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import React from "react";
 import { SlidableProductList } from "@/app/(store)/components/slidable-product-list";
 import { LoadingCard } from "@/components/loading";
@@ -12,6 +11,8 @@ import { cookies } from "next/headers";
 import { buildUrlQueryParams } from "@/utils/build-url-query-params";
 import { PersonalChat } from "../components/personal-chat";
 import { ShopSocials } from "../components/shop-socials";
+import { ShopReels } from "../components/shop-reels";
+import { ImageWithFallBack } from "@/components/image";
 
 const ShopReview = dynamic(() => import("../components/shop-review"), {
   loading: () => <LoadingCard />,
@@ -31,13 +32,22 @@ export const generateMetadata = async ({
     }
   );
 
+  // Validate logo image URL for metadata
+  const logoImg = shop.data.logo_img && 
+    shop.data.logo_img !== "url.webp" && 
+    shop.data.logo_img.trim() !== "" 
+    ? shop.data.logo_img 
+    : undefined;
+
   return {
     title: shop.data.translation?.title,
     description: shop.data.translation?.description,
     openGraph: {
-      images: {
-        url: shop.data.logo_img,
-      },
+      ...(logoImg && {
+        images: {
+          url: logoImg,
+        },
+      }),
       title: shop.data.translation?.title,
       description: shop.data.translation?.description,
     },
@@ -56,7 +66,7 @@ const SingleShop = async ({ params }: { params: { id: string } }) => {
     <div className="xl:container px-2 md:px-4">
       <div className="relative md:h-[350px] h-60 w-full rounded-3xl overflow-hidden flex flex-col justify-end lg:pb-7 lg:px-7 md:pb-4 md:px-4 pb-2 px-2 store-bg">
         {shop.data.background_img ? (
-          <Image
+          <ImageWithFallBack
             src={shop.data.background_img}
             alt={shop.data.translation?.title || ""}
             fill
@@ -84,6 +94,7 @@ const SingleShop = async ({ params }: { params: { id: string } }) => {
           link="/products"
         />
       </section>
+      <ShopReels shopId={shop.data.id} />
       <section className="mt-4 mb-4">
         <SlidableProductList
           title="new.arrivals"
