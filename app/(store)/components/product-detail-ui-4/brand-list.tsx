@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import React from "react";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ const BrandList = () => {
           <Link href={`/products?brands=${brand.id}`} key={brand.id}>
             <div className="border relative border-gray-border dark:border-gray-inputBorder rounded-xl px-2 flex justify-center items-center md:aspect-[100/24] aspect-[74/20] ">
               <div className="my-5">
-                <Image
+                <ImageWithFallBack
                   src={brand.img}
                   alt="brand"
                   fill

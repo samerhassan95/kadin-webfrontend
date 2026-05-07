@@ -15,7 +15,7 @@ const CategoryList = () => {
     queryKey: ["categories", searchParams.get("category_id")],
     queryFn: ({ pageParam }) =>
       categoryService.getAll({
-        type: "sub_main",
+        type: searchParams.get("category_id") ? "sub_main" : "main",
         page: pageParam,
         parent_id: searchParams.get("category_id"),
       }),

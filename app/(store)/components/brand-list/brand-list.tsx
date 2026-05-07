@@ -1,7 +1,7 @@
 "use client";
 
 import ChevronRightIcon from "@/assets/icons/chevron-right";
-import Image from "next/image";
+import { ImageWithFallBack } from "@/components/image";
 import React from "react";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -40,7 +40,7 @@ const BrandList = () => {
       {brandList?.map((brand) => (
         <SwiperSlide key={brand.id}>
           <Link href={`/products?brands=${brand.id}`}>
-            <Image
+            <ImageWithFallBack
               src={brand.img}
               alt="brand"
               width={110}

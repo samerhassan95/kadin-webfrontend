@@ -33,10 +33,17 @@ export const ShopReels: React.FC<ShopReelsProps> = ({ shopId }) => {
     ? reelsData.data 
     : [];
 
-  // Initialize all videos as muted by default
+  // Initialize liked reels from API data and muted videos
   useEffect(() => {
     if (reels.length > 0) {
+      // Set muted videos (all videos start muted)
       setMutedVideos(new Set(reels.map(reel => reel.id)));
+      
+      // Set liked reels from API data
+      const likedReelIds = reels
+        .filter(reel => reel.is_liked)
+        .map(reel => reel.id);
+      setLikedReels(new Set(likedReelIds));
     }
   }, [reels]);
 
@@ -100,7 +107,9 @@ export const ShopReels: React.FC<ShopReelsProps> = ({ shopId }) => {
     }
 
     try {
-      await reelsService.likeReel(reelId);
+      const response = await reelsService.likeReel(reelId);
+      // The API returns { status: true, message: "Successfully updated" }
+      // We handle the like state optimistically
       setLikedReels(prev => {
         const newSet = new Set(prev);
         if (newSet.has(reelId)) {
@@ -203,12 +212,19 @@ export const ShopReels: React.FC<ShopReelsProps> = ({ shopId }) => {
                 }`}
                 title={!isSignedIn ? 'Please log in to like reels' : 'Like this reel'}
               >
-                {likedReels.has(reel.id) ? (
+                {(likedReels.has(reel.id) || reel.is_liked) ? (
                   <HeartIconSolid className="w-4 h-4 text-red-500" />
                 ) : (
                   <HeartIcon className="w-4 h-4 text-white" />
                 )}
               </button>
+
+              {/* Likes Count */}
+              {reel.likes_count > 0 && (
+                <div className="absolute top-2 left-2 px-2 py-1 bg-black bg-opacity-60 rounded text-white text-xs">
+                  {reel.likes_count} ❤️
+                </div>
+              )}
 
               {/* Audio Control Button (only visible when playing) */}
               {hoveredVideo === reel.id && (
@@ -225,11 +241,16 @@ export const ShopReels: React.FC<ShopReelsProps> = ({ shopId }) => {
               )}
 
               {/* Reel Title Overlay */}
-              {reel.title && (
+              {reel.shop?.translation?.title && (
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
                   <p className="text-white text-sm font-medium truncate">
-                    {reel.title}
+                    {reel.shop.translation.title}
                   </p>
+                  {reel.product?.translation?.title && (
+                    <p className="text-white text-xs opacity-80 truncate">
+                      {reel.product.translation.title}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
