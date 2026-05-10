@@ -40,7 +40,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "back.kadin.app",
         port: "",
-        pathname: "/storage/**",
+        pathname: "/**",
       },
       {
         protocol: "https",

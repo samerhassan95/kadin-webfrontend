@@ -3,24 +3,24 @@
 
 echo 'Testing and building your project before committing'
 
-yarn run lint-format-stage 
+npm run lint-format-stage 
 
-yarn run prettier:fix ||
+npm run prettier:fix ||
 (
     echo '🤢🤮🤢🤮 Its F***ING RAW - Your styling looks-detail disgusting. 🤢🤮🤢🤮
-            Prettier Check Failed. Run yarn format, add changes and try commit again.';
+            Prettier Check Failed. Run npm run format, add changes and try commit again.';
     false;
 )
 echo '👌🏻 So far So Good, Not bad!'
 
-yarn run lint ||
+npm run lint ||
 (
         echo '😤🏀👋😤 Get that weak shit out of here! 😤🏀👋😤 
                 ESLint Check Failed. Make the required changes listed above, add changes and try to commit again.'
         false; 
 )
 
-yarn run check-types ||
+npm run check-types ||
 (
     echo '🤡😂❌🤡 Failed Type check. 🤡😂❌🤡
             Are you seriously trying to write that shi**ty code, bro? Make the changes required above.'
